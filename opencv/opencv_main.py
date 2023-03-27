@@ -6,7 +6,7 @@ from pixel_observer.pixel import make_pixel
 
 # Open videostream
 camera_stream = cv.VideoCapture(0)
-pixel = make_pixel(0.4)
+pixel = make_pixel(0.4, 50)
 
 while True:
     #image = camera_stream.read()
@@ -17,10 +17,12 @@ while True:
     #classify
     #tensor.detect ...
     # takes time so simulate it
-    time.sleep(0.2)
+    time.sleep(0.5)
 
+    print("====== OpenCV Status ", time.asctime(), " =====")
     if (not pixel.add(binary_image)):
         print("FAILED")
         exit()
         
     pixel.print_history_fitting()
+    print("=====================================================")

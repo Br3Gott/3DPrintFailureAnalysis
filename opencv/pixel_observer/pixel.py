@@ -39,7 +39,7 @@ class Pixel:
         print(self.fit_a, "* x +", self.fit_b)
 
     def is_valid(self, next_time, next_pixels):
-        if len(self.history_time) < 20:
+        if len(self.history_time) < 5:
             return True
 
         self.fit_a, self.fit_b = np.polyfit(self.history_time, self.history_pixels, 1)
@@ -52,5 +52,5 @@ class Pixel:
             return False
         return True
 
-def make_pixel(error_margin):
-    return Pixel(error_margin)
+def make_pixel(error_margin, history_length):
+    return Pixel(error_margin, history_length)
