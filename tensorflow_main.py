@@ -6,9 +6,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
-import pathlib
-import os
-
 batch_size = 32
 img_height = 180
 img_width = 180
@@ -80,3 +77,11 @@ history = model.fit(
   validation_data=val_ds,
   epochs=epochs
 )
+
+# Convert the model.
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+# Save the model.
+with open('model.tflite', 'wb') as f:
+  f.write(tflite_model)

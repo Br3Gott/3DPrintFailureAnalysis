@@ -1,13 +1,10 @@
+
 import cv2 as cv
 import time
-
 from picamera2 import Picamera2 as PiCamera
 
 from pre_processing.filter import filter_image
 from pixel_observer.pixel import make_pixel
-
-# Open videostream
-# camera_stream = cv.VideoCapture(0)
 
 camera = PiCamera()
 camera.start()
