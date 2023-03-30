@@ -14,7 +14,7 @@ image_count = 0
 
 # command line argument fail / success
 # path = "./dataset#" + datetime.datetime.now().strftime("%Y-%m-%d")
-path = "./dataset#" + argv[2]
+path = "./dataset#" + sys.argv[2]
 
 if sys.argv[1] == "fail":
     if not os.path.exists(path + "/fail"):
