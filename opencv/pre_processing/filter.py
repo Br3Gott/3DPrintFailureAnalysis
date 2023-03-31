@@ -9,5 +9,4 @@ def filter_image(input_image):
 
     bin_img_data = cv.inRange(hsv, lower, higher)
 
-    #cv.imwrite(output_url, bin_img_data)
     return bin_img_data
