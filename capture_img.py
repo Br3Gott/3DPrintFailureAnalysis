@@ -33,14 +33,15 @@ else:
 
 while True:
     image = None
+    curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
     if sys.argv[1] == "fail":
-        file_raw = path + "/fail_raw/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
-        file_filtered = path + "/fail_filtered/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
-        file_masked = path + "/fail_masked/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
+        file_raw = path + "/fail_raw/" + curr_date + ".jpg"
+        file_filtered = path + "/fail_filtered/" + curr_date + ".jpg"
+        file_masked = path + "/fail_masked/" + curr_date + ".jpg"
     else:
-        file_raw = path + "/success_raw/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
-        file_filtered = path + "/success_filtered/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
-        file_masked = path + "/success_masked/" + datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".jpg"
+        file_raw = path + "/success_raw/" + curr_date + ".jpg"
+        file_filtered = path + "/success_filtered/" + curr_date + ".jpg"
+        file_masked = path + "/success_masked/" + curr_date + ".jpg"
     
     image_raw = picam2.capture_array("main")
     image_filtered = filter_image(image_raw)
