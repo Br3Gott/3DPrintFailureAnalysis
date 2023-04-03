@@ -10,6 +10,7 @@ import numpy as np
 picam2 = Picamera2()
 capture_config = picam2.create_still_configuration(main={"format": 'RGB888', "size": (3280, 2464)})
 picam2.configure(capture_config)
+picam2.rotation = 180
 
 
 picam2.start()
@@ -18,7 +19,7 @@ image_count = 0
 
 # command line argument fail / success
 # path = "./dataset#" + datetime.datetime.now().strftime("%Y-%m-%d")
-path = "./dataset#" + sys.argv[2]
+path = "./datasets/" + sys.argv[2]
 
 if sys.argv[1] == "fail":
     if not os.path.exists(path + "/fail_raw"):

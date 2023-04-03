@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Progress monitor</title>
+        <style>
+            img {
+                width: 33%;
+                height: auto;
+                transform: rotate(180deg)
+            }
+        </style>
+    </head>
+    <body>
+        <img src="/raw">
+        <img src="/filtered">
+        <img src="/masked">
+        <script>
+            setTimeout(() => {document.location.reload()}, 30000)
+        </script>
+    </body>
+</html>
