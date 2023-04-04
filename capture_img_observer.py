@@ -8,12 +8,11 @@ def get_files(p):
     res = p.stdout.read()
     return res.decode('utf-8').split("\n")
 
-path = sys.argv[1]
+# dataset name
+path = "./datasets/" + sys.argv[2]
 
-#if (os.path.isdir(path+"success_raw")):
-    #path = path + "success_"
-#else:
-path = path + "fail_"
+# fail or success
+path = path + "/" + sys.argv[1] + "_" 
 
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -34,7 +33,7 @@ class MyServer(BaseHTTPRequestHandler):
             data = get_files(path + "raw/")
             img = cv.imread(path + "raw/" + data[0])
             img = cv.resize(img, (width, height), interpolation = cv.INTER_AREA)
-            self.wfile.write(cv.imencode('.jpg', img)[1].tostring())
+            self.wfile.write(cv.imencode('.jpg', img)[1].tobytes())
             # with open(path + "raw/" + data[0], 'rb') as f:
             #     self.wfile.write(f.read())
             #     f.close()
