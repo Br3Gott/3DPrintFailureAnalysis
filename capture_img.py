@@ -54,4 +54,4 @@ while True:
     print("Took image: Number {}, Filename {}".format(image_count, file_raw))
     
 
-    time.sleep(30) 
+    time.sleep(15) 

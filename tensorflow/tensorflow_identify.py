@@ -26,7 +26,7 @@ class Indentify:
         new_img = cv.resize(img, (180, 180))
         new_img = new_img.astype(np.float32)
         # temp fix for binary image
-        new_img = cv.cvtColor(new_img, cv.COLOR_GRAY2RGB)
+        #new_img = cv.cvtColor(new_img, cv.COLOR_GRAY2RGB)
         new_img = np.expand_dims(new_img, axis=0)
 
         interpreter.set_tensor(input_details[0]['index'], new_img)
@@ -43,5 +43,6 @@ class Indentify:
                 "This image most likely belongs to {} with a {:.2f} percent confidence."
                 .format(class_names[np.argmax(output_data)], 100 * np.max(output_data))
             )
+            print(output_data)
 
         return class_names[np.argmax(output_data)]

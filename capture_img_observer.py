@@ -10,10 +10,10 @@ def get_files(p):
 
 path = sys.argv[1]
 
-if (os.path.isdir(path+"success_raw")):
-    path = path + "success_"
-else:
-    path = path + "fail_"
+#if (os.path.isdir(path+"success_raw")):
+    #path = path + "success_"
+#else:
+path = path + "fail_"
 
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -33,8 +33,8 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             data = get_files(path + "raw/")
             img = cv.imread(path + "raw/" + data[0])
-            img = cv.resize(img, (width, height), interpolation = cv2.INTER_AREA)
-            self.wfile.write(img.tobytes())
+            img = cv.resize(img, (width, height), interpolation = cv.INTER_AREA)
+            self.wfile.write(cv.imencode('.jpg', img)[1].tostring())
             # with open(path + "raw/" + data[0], 'rb') as f:
             #     self.wfile.write(f.read())
             #     f.close()
