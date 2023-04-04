@@ -26,7 +26,7 @@ height = 480
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        if (self.path == "/raw"):
+        if ("/raw" in self.path):
             self.send_response(200)
             self.send_header("Content-type", "image/jpeg")
             self.end_headers()
@@ -34,25 +34,42 @@ class MyServer(BaseHTTPRequestHandler):
             img = cv.imread(path + "raw/" + data[0])
             img = cv.resize(img, (width, height), interpolation = cv.INTER_AREA)
             self.wfile.write(cv.imencode('.jpg', img)[1].tobytes())
-            # with open(path + "raw/" + data[0], 'rb') as f:
-            #     self.wfile.write(f.read())
-            #     f.close()
-        elif (self.path == "/filtered"):
+        elif ("/filtered" in self.path):
             self.send_response(200)
             self.send_header("Content-type", "image/jpeg")
             self.end_headers()
-            data = get_files(path + "raw/")
+            data = get_files(path + "filtered/")
             with open(path + "filtered/" + data[0], 'rb') as f:
                 self.wfile.write(f.read())
                 f.close()
-        elif (self.path == "/masked"):
+        elif ("/masked" in self.path):
             self.send_response(200)
             self.send_header("Content-type", "image/jpeg")
             self.end_headers()
-            data = get_files(path + "raw/")
+            data = get_files(path + "masked/")
             with open(path + "masked/" + data[0], 'rb') as f:
                 self.wfile.write(f.read())
                 f.close()
+        elif (self.path == "/df"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            p = subprocess.Popen("df", stdout=subprocess.PIPE)
+            res = p.stdout.read()
+            self.wfile.write(res)
+        elif (self.path == "/psaux"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            p = subprocess.Popen(["ps", "aux" , "--sort=-pcpu"], stdout=subprocess.PIPE)
+            res = p.stdout.read()
+            self.wfile.write(res)
+        elif (self.path == "/curr"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            res = get_files(path + "raw/")
+            self.wfile.write(str.encode(res[0]))
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
