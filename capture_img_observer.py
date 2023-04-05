@@ -1,5 +1,5 @@
 import sys
-import os
+import numpy as np
 
 import subprocess
 
@@ -79,6 +79,11 @@ class MyServer(BaseHTTPRequestHandler):
             image = cv.imread(path + "filtered/" + res[0])
             res = Identify.run(image, verbose=True)
             self.wfile.write(str.encode("Fail: {:.2f} Success: {:.2f}".format(res[0], res[1])))
+            
+            # Write to log file
+            class_names = ["Fail", "Success"]
+            with open('tflog.txt', 'a') as log:
+                log.write("{} [{:.2f}, {:.2f}]\n".format(class_names[np.argmax(res)], res[0], res[1] ))
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
