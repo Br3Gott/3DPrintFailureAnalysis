@@ -1,8 +1,7 @@
 # Bachelors Thesis in Computer Science and Engineering
 
 ## Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
-
-## Bachelor Thesis in Computer Science by Linus Thorsell and David Sohl at Linköping University.
+Bachelor Thesis in Computer Science by Linus Thorsell and David Sohl at Linköping University.
 
 ### Thesis Research Question
 
@@ -12,7 +11,7 @@ with a limited training dataset?
 
 ***
 
-### Introduction to thesis
+### Thesis Introduction
 
 3D-Printers and their additive manufacturing methods have become quite popular during the last decade and are a great way of prototyping products. Additive manufacturing works by layering melted plastic to create intricate 3D parts where almost anything can be created. Even if 3D printing sounds like a simple process a lot of things can go wrong and many factor are at play during printing. During additive manufacturing the printing process often produce some byproducts such as toxic fumes from melting plastics at high temperatures, 3D printers are therefore recommended to be kept in well ventilated areas and away from people. Due to these high temperatures in 3D printing there are risks for electrical, material and mechanical fires. This requires printers to be regularly monitored, so that they do not catch fire while unattended. This presents a problem where it is not recommended to inhale the printing fumes but require you to be observant for errors. Emerging technologies regarding computer vision and artificial intelligence promises to allow for automating tasks that have previously required a human. Such task are for example monitoring the printing progress of a 3D printer.
 
