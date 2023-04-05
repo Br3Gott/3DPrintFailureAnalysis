@@ -1,4 +1,4 @@
-# Thesis in Computer Science and Engineering
+# Bachelors Thesis in Computer Science and Engineering
 
 ## Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
 
