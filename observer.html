@@ -65,7 +65,11 @@
             </div>
             <div class="update-div">
                 <p>Last image: </p>
-                <p id="lastupdate">Last update: </p>
+                <p id="lastupdate">...</p>
+            </div>
+            <div class="tf-div">
+                <p>Last tf status: </p>
+                <p id="tf">...</p>
             </div>
         </div>
         <script>
@@ -84,6 +88,11 @@
                 const response = await fetch("/curr");
                 let res = await response.text();
                 document.querySelector("#lastupdate").innerText = res;
+            }
+            async function fetchtf() {
+                const response = await fetch("/tf");
+                let res = await response.text();
+                document.querySelector("#tf").innerText = res;
             }
             function loadImages() {
                 document.querySelector("#raw").src = "/raw?" + Date.now();
@@ -110,6 +119,7 @@
                         fetchdf();
                         fetchpsaux();
                         fetchcurr();
+                        fetchtf();
                     } else {
                         clock = clock - 1;
                     }
@@ -121,6 +131,7 @@
             fetchdf();
             fetchpsaux();
             fetchcurr();
+            fetchtf();
             
             // main loop
             startTimer();

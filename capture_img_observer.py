@@ -17,6 +17,7 @@ path = path + "/" + sys.argv[1] + "_"
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import cv2 as cv
+from tensorflow.tensorflow_identify import Identify
 
 hostName = "0.0.0.0"
 serverPort = 9000
@@ -70,6 +71,14 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             res = get_files(path + "raw/")
             self.wfile.write(str.encode(res[0]))
+        elif (self.path == "/tf"):
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            res = get_files(path + "filtered/")
+            image = cv.imread(path + "filtered/" + res[0])
+            res = Identify.run(image, verbose=True)
+            self.wfile.write(str.encode("Fail: {:.2f} Success: {:.2f}".format(res[0], res[1])))
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
