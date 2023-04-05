@@ -3,4 +3,4 @@ my_dir/
 my_log_dir/
 __pycache__/
 dataset*/
-tflog.txt
+tflog*.txt

@@ -18,7 +18,9 @@ path = path + "/" + sys.argv[1] + "_"
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import cv2 as cv
 from tensorflow.tensorflow_identify import Identify
+import datetime
 
+date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 hostName = "0.0.0.0"
 serverPort = 9000
 
@@ -77,13 +79,13 @@ class MyServer(BaseHTTPRequestHandler):
             self.end_headers()
             res = get_files(path + "filtered/")
             image = cv.imread(path + "filtered/" + res[0])
-            res = Identify.run(image, verbose=True)
-            self.wfile.write(str.encode("Fail: {:.2f} Success: {:.2f}".format(res[0], res[1])))
+            ident = Identify.run(image, verbose=True)
+            self.wfile.write(str.encode("Fail: {:.2f} Success: {:.2f}".format(ident[0], ident[1])))
             
             # Write to log file
             class_names = ["Fail", "Success"]
-            with open('tflog.txt', 'a') as log:
-                log.write("{} [{:.2f}, {:.2f}]\n".format(class_names[np.argmax(res)], res[0], res[1] ))
+            with open('tflog' + date + '.txt', 'a') as log:
+                log.write("{} [{:.2f}, {:.2f}] ({})\n".format(class_names[np.argmax(ident)], ident[0], ident[1], path + "filtered/" + res[0]))
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
