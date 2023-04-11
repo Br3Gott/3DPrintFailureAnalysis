@@ -20,7 +20,7 @@ class Pixel:
         pixel_count = cv.countNonZero(binary_image)
         current_delta_time = time.time()-self.start_time
 
-        validity = self.is_valid(current_delta_time, pixel_count)
+        validity, difference = self.is_valid(current_delta_time, pixel_count)
 
         self.history_pixels.append(pixel_count)
         self.history_time.append(current_delta_time)
@@ -29,28 +29,31 @@ class Pixel:
             self.history_pixels.pop(0)
             self.history_time.pop(0)
 
-        return validity
+        return validity, difference
 
     def print_history_values(self):
         print(self.history_time)
         print(self.history_pixels)
     
-    def print_history_fitting(self):
-        print(self.fit_a, "* x +", self.fit_b)
+    def history_fitting(self):
+        if self.fit_a == None:
+            return "Collecting data for prediction..."
+        else:
+            return "{:.2f}".format(self.fit_a) + " * x + " + "{:.2f}".format(self.fit_b)
 
     def is_valid(self, next_time, next_pixels):
-        if len(self.history_time) < 5:
-            return True
+        if len(self.history_time) < 20:
+            return None, 0
 
         self.fit_a, self.fit_b = np.polyfit(self.history_time, self.history_pixels, 1)
 
         expected_next = self.fit_a*next_time+self.fit_b
         difference = abs(expected_next-next_pixels)
-        print("Difference: ", difference)
+        #print("Difference: {:.2f} ".format(difference))
         
-        if difference > 50:
-            return False
-        return True
+        if difference > 100:
+            return False, difference
+        return True, difference
 
 def make_pixel(error_margin, history_length):
     return Pixel(error_margin, history_length)

@@ -1,12 +1,15 @@
-
 import cv2 as cv
+import numpy as np
 import time
 from picamera2 import Picamera2 as PiCamera
+import os
+
+import datetime
 
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
 
-from tensorflow.tensorflow_identify import Indentify
+from tensorflow.tensorflow_identify import Identify
 
 camera = PiCamera()
 camera.start()
@@ -25,24 +28,35 @@ def user_prompt():
         print("Continuing...")
 
 while True:
+    display_text = ""
     image = camera.capture_array("main")
 
     binary_image = filter_image(image)
+    cv.imwrite("filtered.jpg", binary_image)
+    tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
 
-    print("====== TensorFlow Status ", time.asctime(), " =====")
+    display_text = "====== TensorFlow Status " + time.asctime() + " =====" + "\n"
     # classify with tflite model
-    if (not Indentify.run(binary_image, verbose=False)):
-        print("FAILED")
-        user_prompt()
+    #tf_image = np.expand_dims(binary_image, axis=0)
+    classification = Identify.run(tf_image, verbose=False)
+    if (np.argmax(classification) == 0):
+        display_text += "Print is failing!" + "\n"
+        #user_prompt()
     else:
-        print("Tensorflow passed!")
+        display_text += "Print is successful!" + "\n"
 
-    print("====== OpenCV Status ", time.asctime(), " =========")
-    if (not pixel.add(binary_image)):
-        print("FAILED")
-        user_prompt()
+    display_text += "====== OpenCV Status " + time.asctime() + " =========" + "\n"
+    validity, difference = pixel.add(binary_image)
+
+    if not validity == None:
+        if not validity:
+            display_text += "Pixel count failure! [{:.2f}]".format(difference) + "\n"
+        else:
+            display_text += "Pixel count is valid! [{:.2f}]".format(difference) + "\n"
         
-    pixel.print_history_fitting()
-    print("=========================================================")
+    display_text += pixel.history_fitting() + "\n"
+    display_text += "=========================================================" + "\n"
 
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(display_text)
     time.sleep(2)

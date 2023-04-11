@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from PIL.Image import fromarray 
 
 import tflite_runtime.interpreter as tflite
 
