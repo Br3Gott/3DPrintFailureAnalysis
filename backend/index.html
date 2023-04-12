@@ -13,7 +13,15 @@
             "ws://10.8.160.199:8080/ws"
         );
         socket.onmessage = (event) => {
-            console.log(event.data);
+            console.log(event.data)
+            let res = JSON.parse(event.data);
+            console.log(res)
+
+            if(res["regular"] != null){
+                document.querySelector("body p").innerText = res["regular"];
+            } else if(res["ps"] != null){
+                document.querySelector("body p").innerText = res["ps"];
+            }
         };
         socket.onopen = (event) => {
             socket.send("Here's some text that the server is urgently awaiting!");
