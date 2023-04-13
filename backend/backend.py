@@ -1,6 +1,8 @@
 import subprocess
 import json
 
+import random
+
 import time
 import asyncio
 from aiohttp import web
@@ -43,7 +45,7 @@ async def websocket_handler(request):
     return ws
 
 async def sendMessage(title, msg):
-    print("Sending msg...")
+    # print("Sending msg...")
     for _ws in connections:
         await _ws.send_str("{\"" + title + "\": " + json.dumps(msg) + "}")
 
@@ -82,6 +84,19 @@ async def getPs():
             prepared_output.append(temp)
     return prepared_output
 
+async def getDetectStatus():
+    #filler for now
+    output = {}
+    dnn = {}
+    dnn["success"] = random.randint(0,100)
+    dnn["fail"] = 100 - dnn["success"]
+    output["dnn"] = dnn
+    cvs = {}
+    cvs["difference"] = random.randint(0,100)
+    output["cv"] = cvs
+
+    return output
+
 app = web.Application()
 app.add_routes(routes)
 
@@ -97,6 +112,8 @@ async def wrapper():
         await asyncio.sleep(5)
         ps = await getPs()
         await sendMessage("ps", ps)
+        ov = await getDetectStatus()
+        await sendMessage("ov", ov)
 
 asyncio.run(wrapper())
 
