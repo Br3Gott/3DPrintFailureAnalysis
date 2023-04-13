@@ -33,8 +33,8 @@ function CV({ low_hsv, high_hsv }) {
             
             console.log(low_hsv, high_hsv)
 
-            let low = cv.matFromArray(hsv.rows, hsv.cols, hsv.type(), low_hsv);
-            let high = cv.matFromArray(hsv.rows, hsv.cols, hsv.type(), high_hsv);
+            let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [...low_hsv, 0]);
+            let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [...high_hsv, 255]);
 
             let dst = new cv.Mat();
             cv.inRange(hsv, low, high, dst)

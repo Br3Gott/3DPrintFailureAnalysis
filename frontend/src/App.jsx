@@ -79,7 +79,7 @@ function App() {
 
       <AppLayout className="App">
         <Module>
-          <FailureOverview />
+          <FailureOverview socketUrl={socketUrl} />
         </Module>
         <Module>
           <SystemStats socketUrl={socketUrl} />
