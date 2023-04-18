@@ -16,7 +16,7 @@ class Identify:
         classify_lite = interpreter.get_signature_runner('serving_default')
         classify_lite
 
-        new_img = cv.resize(input_image, (180, 180))
+        new_img = cv.resize(input_image, (300, 300))
         new_img = new_img.astype(np.float32)
         new_img = np.expand_dims(new_img, axis=0)
 
@@ -24,6 +24,7 @@ class Identify:
 
         # calculate the softmax of a vector
         def softmax(vector):
+            vector[0] = [vector[0][0]/100, vector[0][1]/100]
             e = np.exp(vector)
             return e / e.sum()
 

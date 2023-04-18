@@ -84,8 +84,12 @@ class MyServer(BaseHTTPRequestHandler):
             
             # Write to log file
             class_names = ["Fail", "Success"]
+            if ident[np.argmax(ident)] > 60 and np.argmax(ident) == 0:
+                threshold = "Below"
+            else:
+                threshold = "Passing"
             with open('tflog' + date + '.txt', 'a') as log:
-                log.write("{} [{:.2f}, {:.2f}] ({})\n".format(class_names[np.argmax(ident)], ident[0], ident[1], path + "filtered/" + res[0]))
+                log.write("{} [{:.2f}, {:.2f}] Threshold: {} ({})\n".format(class_names[np.argmax(ident)], ident[0], ident[1], threshold, path + "filtered/" + res[0]))
         else:
             self.send_response(200)
             self.send_header("Content-type", "text/html")
