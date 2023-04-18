@@ -84,7 +84,7 @@ class MyServer(BaseHTTPRequestHandler):
             
             # Write to log file
             class_names = ["Fail", "Success"]
-            if ident[np.argmax(ident)] > 0.60 and np.argmax(ident) == 0:
+            if ident[np.argmax(ident)] > 60 and np.argmax(ident) == 0:
                 threshold = "Below"
             else:
                 threshold = "Passing"
