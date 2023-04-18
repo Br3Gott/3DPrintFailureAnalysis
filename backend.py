@@ -135,7 +135,9 @@ async def captureImage():
     # width = 640
     # height = 480
     # image = cv.resize(image, (width, height), interpolation = cv.INTER_AREA)
-    raw_bytes = cv.imencode('.jpg', image)[1].tobytes()
+    binary_image = filter_image(image)
+    raw_bytes = cv.imencode('.jpg', binary_image)[1].tobytes()
+
 
     for _ws in viewers:
         await _ws.send_bytes(raw_bytes)
