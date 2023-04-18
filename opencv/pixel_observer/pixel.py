@@ -42,7 +42,7 @@ class Pixel:
             return "{:.2f}".format(self.fit_a) + " * x + " + "{:.2f}".format(self.fit_b)
 
     def is_valid(self, next_time, next_pixels):
-        if len(self.history_time) < 20:
+        if len(self.history_time) < self.history_length:
             return None, 0
 
         self.fit_a, self.fit_b = np.polyfit(self.history_time, self.history_pixels, 1)

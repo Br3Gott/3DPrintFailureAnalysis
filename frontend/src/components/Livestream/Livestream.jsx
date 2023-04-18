@@ -1,9 +1,47 @@
-import ModuleContainer from "../ModuleContainer"
+import ModuleContainer from "../ModuleContainer";
+import useWebSocket from "react-use-websocket";
+import { useState, useEffect } from "react";
+import { StatusCard } from "../StatusCard";
 
-export default function Livestream() {
-    return (
-        <ModuleContainer>
-            <img id="latestImage" style={{width: "100%", height: "100%"}} src="https://via.placeholder.com/600x400?text=Live stream" />
-        </ModuleContainer>
-    )
+export default function Livestream({ socketUrl }) {
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    sendMessage("I want image :)");
+  }, []);
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      try {
+        JSON.parse(lastMessage.data);
+      } catch (e) {
+        // it is not json, therefore its image bytes
+        setData(lastMessage.data);
+      }
+    }
+  }, [lastMessage]);
+
+  return (
+    <ModuleContainer>
+      <StatusCard>Live Preview</StatusCard>
+      <StatusCard>
+        {data ? (
+          <img
+            id="latestImage"
+            style={{
+              width: "calc(100% - 1em)",
+              height: "fit-content",
+              paddingTop: "0.5em",
+              paddingBottom: "0.5em",
+              transform: "rotate(180deg)"
+            }}
+            src={URL.createObjectURL(data)}
+          />
+        ) : (
+          <p>Loading stream...</p>
+        )}
+      </StatusCard>
+    </ModuleContainer>
+  );
 }

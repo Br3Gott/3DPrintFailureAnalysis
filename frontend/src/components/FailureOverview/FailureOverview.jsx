@@ -25,8 +25,6 @@ ChartJS.register(
   Legend
 );
 
-const labels = ["January", "February", "March", "April", "May", "June", "July"];
-
 const options = {
   responsive: true,
   plugins: {
@@ -42,35 +40,33 @@ const options = {
 
 export default function FailureOverview({ socketUrl }) {
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
-  const [serverData, setServerData] = useState(
+  const [serverData, setServerData] = useState([
     {
-      labels: [0],
-      dnn: {
-        success: 0,
-        fail: 0
-      },
-      cv: {
-        difference: 0
-      }
-    }
-  );
-
-  var data = {
-    labels: [...serverData.labels],
-    datasets: [
-      {
-        label: "Success",
-        data: [...[serverData.dnn.success]],
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-      },
-      {
-        label: "Fail",
-        data: [...[serverData.dnn.fail]],
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
-      },
-    ],
-  };
-  console.log(data)
+      labels: [new Date().toLocaleTimeString()],
+      datasets: [
+        {
+          label: "Success (%)",
+          data: [0],
+          backgroundColor: "rgba(0, 255, 0, 1)",
+        },
+        {
+          label: "Fail (%)",
+          data: [0],
+          backgroundColor: "rgba(255, 0, 0, 1)",
+        },
+      ],
+    },
+    {
+      labels: [new Date().toLocaleTimeString()],
+      datasets: [
+        {
+          label: "Difference (%)",
+          data: [0],
+          backgroundColor: "rgba(0, 0, 0, 1)",
+        },
+      ],
+    },
+  ]);
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -81,10 +77,43 @@ export default function FailureOverview({ socketUrl }) {
       if (res["regular"] != null) {
         // set regular state
       } else if (res["ov"] != null) {
-        // setStats(res["ps"])
-        console.log("hej ov");
-        setServerData(res["ov"]);
-        console.log(res["ov"]);
+        let newServerData = [
+          {
+            labels: [...serverData[0].labels, new Date().toLocaleTimeString()],
+            datasets: [
+              {
+                label: "Success (%)",
+                data: [...serverData[0].datasets[0].data, res.ov.dnn.success],
+                backgroundColor: serverData[0].datasets[0].backgroundColor,
+              },
+              {
+                label: "Fail (%)",
+                data: [...serverData[0].datasets[1].data, res.ov.dnn.fail],
+                backgroundColor: serverData[0].datasets[1].backgroundColor,
+              },
+            ],
+          },
+          {
+            labels: [...serverData[1].labels, new Date().toLocaleTimeString()],
+            datasets: [
+              {
+                label: "Difference (%)",
+                data: [...serverData[1].datasets[0].data, res.ov.cv.difference],
+                backgroundColor: serverData[1].datasets[0].backgroundColor,
+              },
+            ],
+          },
+        ];
+
+        if (newServerData[0].datasets[0].data.length > 20) {
+          newServerData[0].datasets[0].data.shift()
+          newServerData[0].datasets[1].data.shift()
+          newServerData[0].labels.shift()
+          newServerData[1].datasets[0].data.shift()
+          newServerData[1].labels.shift()
+        }
+
+        setServerData([...newServerData]);
       }
     }
   }, [lastMessage]);
@@ -94,12 +123,12 @@ export default function FailureOverview({ socketUrl }) {
       <StatusCard>Failure Mode Overview</StatusCard>
       <StatusCard>
         Deep Neural Network
-        <Line options={options} data={data} />
+        <Line options={options} data={serverData[0]} />
         Status: Success (95% Confidence)
       </StatusCard>
       <StatusCard>
         Computer Vision
-        <Line options={options} data={data} />
+        <Line options={options} data={serverData[1]} />
         Status: Success Difference 5% (&lt;30%)
       </StatusCard>
       {/* <StatusCard>

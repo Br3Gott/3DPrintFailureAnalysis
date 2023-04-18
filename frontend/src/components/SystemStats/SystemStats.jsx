@@ -19,19 +19,14 @@ export default function SystemStats({ socketUrl }) {
 
     const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
     const [data, setData] = useState([])
-    console.log(data)
 
     useEffect(() => {
         if (lastMessage !== null) {
-            // console.log(lastMessage.data)
             let res = JSON.parse(lastMessage.data);
-            // console.log(res)
 
             if (res["regular"] != null) {
                 // set regular state
             } else if (res["ps"] != null) {
-                // setStats(res["ps"])
-                console.log("hej stat")
                 setData([...res["ps"]])
             }
         }

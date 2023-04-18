@@ -56,7 +56,7 @@ function App() {
 
   // Socket stuff
 
-  const [socketUrl, setSocketUrl] = useState('ws://10.8.160.199:8080/ws');
+  const [socketUrl, setSocketUrl] = useState('ws://10.8.160.203:8080/ws');
 
   return (
     <>
@@ -85,7 +85,7 @@ function App() {
           <SystemStats socketUrl={socketUrl} />
         </Module>
         <Module>
-          <Livestream />
+          <Livestream socketUrl={socketUrl} />
         </Module>
 
         <Module>
