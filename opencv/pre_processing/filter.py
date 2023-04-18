@@ -98,7 +98,7 @@ def filter_image(input_image):
             if point[0][1] < smallest_y: smallest_y = point[0][1]
             if point[0][1] > largest_y: largest_y = point[0][1]
 
-        print("sx {} sy {} lx {} ly {}".format(smallest_x, smallest_y, largest_x, largest_y))
+        # print("sx {} sy {} lx {} ly {}".format(smallest_x, smallest_y, largest_x, largest_y))
 
         masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/2):largest_y, smallest_x:largest_x]
         masked_cropped = cv.cvtColor(masked_cropped, cv.COLOR_BGR2HSV)
@@ -127,17 +127,17 @@ def filter_image(input_image):
                 if point[2] < lowest_v: lowest_v = point[2]
                 if point[2] > highest_v: highest_v = point[2]
 
-        print("LH: {} LS: {} LV: {} HH: {} HS: {} HV: {}".format(lowest_h, lowest_s, lowest_v, highest_h, highest_s, highest_v))
+        # print("LH: {} LS: {} LV: {} HH: {} HS: {} HV: {}".format(lowest_h, lowest_s, lowest_v, highest_h, highest_s, highest_v))
         
         hsv = cv.cvtColor(input_image, cv.COLOR_BGR2HSV)
 
-        if lowest_h > 5: lowest_h -= 5
-        if lowest_s > 5: lowest_s -= 5
-        if lowest_v > 5: lowest_v -= 5
+        # if lowest_h > 5: lowest_h -= 5
+        # if lowest_s > 5: lowest_s -= 5
+        # if lowest_v > 5: lowest_v -= 5
 
-        if highest_h < 240: highest_h += 5
-        if highest_s < 240: highest_s += 5
-        if highest_v < 240: highest_v += 5
+        # if highest_h < 240: highest_h += 5
+        # if highest_s < 240: highest_s += 5
+        # if highest_v < 240: highest_v += 5
 
         lower = np.array([lowest_h, lowest_s, lowest_v])
         higher = np.array([highest_h, highest_s, highest_v])
