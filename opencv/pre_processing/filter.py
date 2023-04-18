@@ -13,7 +13,7 @@ def filter_image(input_image):
     # higher = np.array([110, 255, 255])
 
     #new good orange
-    lower = np.array([10,150,132])
+    lower = np.array([0,80,100])
     higher = np.array([255, 255, 255])
 
     bin_img_data = cv.inRange(hsv, lower, higher)
