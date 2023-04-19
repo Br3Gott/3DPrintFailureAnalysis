@@ -24,7 +24,7 @@ export default function Livestream({ socketUrl }) {
 
   return (
     <ModuleContainer>
-      <StatusCard>Live Preview</StatusCard>
+      <StatusCard>Filter Preview</StatusCard>
       <StatusCard>
         {data ? (
           <img

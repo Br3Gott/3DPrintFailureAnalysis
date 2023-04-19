@@ -63,10 +63,14 @@ function App() {
       <Module>
         <ModuleContainer>
           <StatusCard>
-            Bachelor Thesis project Computer Science and Engineering
+            <p>
+              Bachelor Thesis project Computer Science and Engineering
+            </p>
           </StatusCard>
           <StatusCard>
-            Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
+            <p style={{padding: "1em", margin: 0}}>
+              Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
+            </p>
           </StatusCard>
           <StatusCard>
             Written by Linus Thorsell and David Sohl
@@ -82,20 +86,10 @@ function App() {
           <FailureOverview socketUrl={socketUrl} />
         </Module>
         <Module>
-          <SystemStats socketUrl={socketUrl} />
-        </Module>
-        <Module>
           <Livestream socketUrl={socketUrl} />
         </Module>
-
         <Module>
-          <Controls />
-        </Module>
-        <Module>
-          <FilterSettings lowHSV={lowHSV} highHSV={highHSV} handleChange={handleChange} />
-        </Module>
-        <Module>
-          <FilteredImage low_hsv={lowHSV} high_hsv={highHSV} />
+          <SystemStats socketUrl={socketUrl} />
         </Module>
       </AppLayout >
     </>

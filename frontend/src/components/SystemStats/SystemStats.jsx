@@ -59,7 +59,7 @@ export default function SystemStats({ socketUrl }) {
             <StatusCardScrollable>
                 {data.map(process => {
                     return (
-                        <StatusCardSplit>
+                        <StatusCardSplit key={process.processId}>
                             <StatusCardItem>{process.user}</StatusCardItem>
                             <StatusCardItem>{process.processId}</StatusCardItem>
                             <StatusCardItem>{process.cpu}%</StatusCardItem>
