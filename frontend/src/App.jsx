@@ -6,13 +6,11 @@ import Controls from './components/Controls/Controls'
 import Livestream from './components/Livestream/Livestream'
 import FilteredImage from './components/FilteredImage/FilteredImage'
 import { useState, useEffect } from 'react'
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import ModuleContainer from './components/ModuleContainer'
 import { StatusCard } from './components/StatusCard'
 
 const AppLayout = styled.div`
   height: 100vh;
-  width: 100vw;
 
   display: flex;
   flex-wrap: wrap;

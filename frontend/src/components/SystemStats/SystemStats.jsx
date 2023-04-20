@@ -17,7 +17,7 @@ const LargeStatusCardItem = styled(StatusCardItem)`
 
 export default function SystemStats({ socketUrl }) {
 
-    const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+    const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
     const [data, setData] = useState([])
 
     useEffect(() => {

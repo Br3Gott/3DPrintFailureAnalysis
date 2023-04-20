@@ -12,7 +12,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import faker from "faker";
 import { useState, useEffect } from "react";
 
 ChartJS.register(
@@ -39,7 +38,7 @@ const options = {
 };
 
 export default function FailureOverview({ socketUrl }) {
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
   const [serverData, setServerData] = useState([
     {
       labels: [new Date().toLocaleTimeString()],

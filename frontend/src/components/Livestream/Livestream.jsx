@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { StatusCard } from "../StatusCard";
 
 export default function Livestream({ socketUrl }) {
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
   const [data, setData] = useState(null);
 
   useEffect(() => {
