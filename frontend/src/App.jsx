@@ -20,7 +20,6 @@ const AppLayout = styled.div`
 `
 
 const Module = styled.div`
-  padding: 15px;
   width: 100%
   height: 100%;
 `
