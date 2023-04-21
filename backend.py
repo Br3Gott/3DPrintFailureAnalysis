@@ -15,7 +15,7 @@ camera.start()
 time.sleep(1)
 
 import asyncio
-from aiohttp import web, MultipartWriter
+from aiohttp import web, MultipartWriter, ClientSession
 
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
@@ -25,7 +25,7 @@ routes = web.RouteTableDef()
 routes.static('/assets', './assets')
 
 @routes.get('/')
-async def hello(request):
+async def static_content(request):
     return web.FileResponse('./index.html')
 
 
@@ -63,7 +63,10 @@ async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
     connections.append(ws)
-    print('websocket connection opened, connected:' + str(len(connections)) + ' viewers:' + str(len(viewers))')
+    print('websocket connection opened, connected:{} viewers:{}'.format(len(connections), len(viewers)))
+
+    # Initialize new client with current state
+    await sendMessage("on", app["state"]["active"])
 
     async for msg in ws:
         if msg.type == web.WSMsgType.TEXT:
@@ -75,6 +78,7 @@ async def websocket_handler(request):
             elif msg.data == 'activate':
                 app["state"]["active"] = True
                 await sendMessage("on", app["state"]["active"])
+                await pausePrint()
             elif msg.data == 'deactivate':
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
@@ -87,7 +91,7 @@ async def websocket_handler(request):
     if ws in viewers:
         viewers.remove(ws)
     connections.remove(ws)
-    print('websocket connection closed)
+    print('websocket connection closed')
 
     return ws
 
@@ -167,6 +171,17 @@ async def captureImage():
     for _ws in viewers:
         await _ws.send_bytes(raw_bytes)
     return image
+
+async def pausePrint():
+    headers = {'X-Api-Key': '11CE191FAD8B4A1E97E246C92B124424'} #API only localy accessible
+    async with ClientSession(headers=headers) as session:
+        payload = {
+            "command": "pause",
+            "action": "pause"
+        }
+        async with session.post('http://10.8.160.199/api/job', json=payload) as resp:
+            print(resp.status)
+            print(await resp.text())
 
 app = web.Application()
 app["state"] = {"active": False}
