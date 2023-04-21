@@ -1,18 +1,16 @@
 import styled from 'styled-components'
 import FailureOverview from './components/FailureOverview/FailureOverview'
 import FilterSettings from './components/FilterSettings/FilterSettings'
+import ModeButtons from './components/ModeButtons/ModeButtons'
 import SystemStats from './components/SystemStats/SystemStats'
 import Controls from './components/Controls/Controls'
 import Livestream from './components/Livestream/Livestream'
 import FilteredImage from './components/FilteredImage/FilteredImage'
 import { useState, useEffect } from 'react'
-import useWebSocket, { ReadyState } from 'react-use-websocket';
 import ModuleContainer from './components/ModuleContainer'
 import { StatusCard } from './components/StatusCard'
 
 const AppLayout = styled.div`
-  height: 100vh;
-  width: 100vw;
 
   display: flex;
   flex-wrap: wrap;
@@ -22,9 +20,8 @@ const AppLayout = styled.div`
 `
 
 const Module = styled.div`
-  padding: 15px;
-  width: 100%
-  height: 100%;
+  margin: 5px;
+  width: 100%;
 `
 
 const targetConversion = new Map([
@@ -35,6 +32,7 @@ const targetConversion = new Map([
   ['high_s', 1],
   ['high_v', 2],
 ])
+
 
 function App() {
   // Filter settings
@@ -56,46 +54,42 @@ function App() {
 
   // Socket stuff
 
-  const [socketUrl, setSocketUrl] = useState('ws://10.8.160.203:8080/ws');
+  const [socketUrl, setSocketUrl] = useState('ws://10.8.160.199:8080/ws');
 
   return (
     <>
-      <Module>
-        <ModuleContainer>
-          <StatusCard>
-            Bachelor Thesis project Computer Science and Engineering
-          </StatusCard>
-          <StatusCard>
-            Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
-          </StatusCard>
-          <StatusCard>
-            Written by Linus Thorsell and David Sohl
-          </StatusCard>
-          <StatusCard>
-            Links: GitHub, Thesis Paper
-          </StatusCard>
-        </ModuleContainer>
-      </Module>
-
       <AppLayout className="App">
+        <Module>
+          <ModuleContainer>
+            <StatusCard>
+              <p>
+                Bachelor Thesis project Computer Science and Engineering
+              </p>
+            </StatusCard>
+            <StatusCard>
+              <p style={{padding: "1em", margin: 0}}>
+                Utilizing Computer Vision and Machine Learning to detect and handle 3D printing failures autonomously with a limited dataset.
+              </p>
+            </StatusCard>
+            <StatusCard>
+              Written by Linus Thorsell and David Sohl
+            </StatusCard>
+            <StatusCard>
+              Links: GitHub, Thesis Paper
+            </StatusCard>
+          </ModuleContainer>
+        </Module>
+        <Module>
+          <ModeButtons socketUrl={socketUrl} />
+        </Module>
         <Module>
           <FailureOverview socketUrl={socketUrl} />
         </Module>
         <Module>
-          <SystemStats socketUrl={socketUrl} />
-        </Module>
-        <Module>
           <Livestream socketUrl={socketUrl} />
         </Module>
-
         <Module>
-          <Controls />
-        </Module>
-        <Module>
-          <FilterSettings lowHSV={lowHSV} highHSV={highHSV} handleChange={handleChange} />
-        </Module>
-        <Module>
-          <FilteredImage low_hsv={lowHSV} high_hsv={highHSV} />
+          <SystemStats socketUrl={socketUrl} />
         </Module>
       </AppLayout >
     </>

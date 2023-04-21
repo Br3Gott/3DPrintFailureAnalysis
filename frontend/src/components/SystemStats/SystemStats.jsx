@@ -17,7 +17,7 @@ const LargeStatusCardItem = styled(StatusCardItem)`
 
 export default function SystemStats({ socketUrl }) {
 
-    const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+    const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
     const [data, setData] = useState([])
 
     useEffect(() => {
@@ -59,7 +59,7 @@ export default function SystemStats({ socketUrl }) {
             <StatusCardScrollable>
                 {data.map(process => {
                     return (
-                        <StatusCardSplit>
+                        <StatusCardSplit key={process.processId}>
                             <StatusCardItem>{process.user}</StatusCardItem>
                             <StatusCardItem>{process.processId}</StatusCardItem>
                             <StatusCardItem>{process.cpu}%</StatusCardItem>

@@ -12,7 +12,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import faker from "faker";
 import { useState, useEffect } from "react";
 
 ChartJS.register(
@@ -39,7 +38,7 @@ const options = {
 };
 
 export default function FailureOverview({ socketUrl }) {
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
   const [serverData, setServerData] = useState([
     {
       labels: [new Date().toLocaleTimeString()],
@@ -124,18 +123,11 @@ export default function FailureOverview({ socketUrl }) {
       <StatusCard>
         Deep Neural Network
         <Line options={options} data={serverData[0]} />
-        Status: Success (95% Confidence)
       </StatusCard>
       <StatusCard>
         Computer Vision
         <Line options={options} data={serverData[1]} />
-        Status: Success Difference 5% (&lt;30%)
       </StatusCard>
-      {/* <StatusCard>
-        <StatusCard>History (Last 50 Results)</StatusCard>
-        DNN: 50 Success, 0 Fail <br />
-        CV: 50 Success, 0 Fail
-      </StatusCard> */}
     </ModuleContainer>
   );
 }
