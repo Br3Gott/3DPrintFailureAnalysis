@@ -15,31 +15,55 @@ camera.start()
 time.sleep(1)
 
 import asyncio
-from aiohttp import web
+from aiohttp import web, MultipartWriter
 
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
 from tensorflow.tensorflow_identify import Identify
 
 routes = web.RouteTableDef()
+routes.static('/assets', './assets')
 
 @routes.get('/')
 async def hello(request):
     return web.FileResponse('./index.html')
 
+
+@routes.get('/video')
+async def mjpeg_handler(request):
+    boundary = "boundarydonotcross"
+    response = web.StreamResponse(status=200, reason='OK', headers={
+        'Content-Type': 'multipart/x-mixed-replace; '
+                        'boundary=--%s' % boundary,
+    })
+    await response.prepare(request)
+    encode_param = (int(cv.IMWRITE_JPEG_QUALITY), 90)
+
+    while True:
+        frame = camera.capture_array("main")
+        frame = cv.resize(frame, (640,480))
+        with MultipartWriter('image/jpeg', boundary=boundary) as mpwriter:
+            result, encimg = cv.imencode('.jpg', frame, encode_param)
+            data = encimg.tobytes()
+            mpwriter.append(data, {
+                'Content-Type': 'image/jpeg'
+            })
+            await mpwriter.write(response, close_boundary=False)
+        # await response.drain()
+    wc.shutdown()
+    return response
+
 connections = []
 viewers = []
+active = False
 
 @routes.get('/ws')
 async def websocket_handler(request):
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-
-    # for _ws in connections:
-        # await _ws.send_str('User joined!')
     connections.append(ws)
-    print('websocket connection opened')
+    print('websocket connection opened, connected:' + str(len(connections)) + ' viewers:' + str(len(viewers))')
 
     async for msg in ws:
         if msg.type == web.WSMsgType.TEXT:
@@ -48,25 +72,26 @@ async def websocket_handler(request):
             elif msg.data == 'I want image :)':
                 if ws not in viewers:
                     viewers.append(ws)
+            elif msg.data == 'activate':
+                app["state"]["active"] = True
+                await sendMessage("on", app["state"]["active"])
+            elif msg.data == 'deactivate':
+                app["state"]["active"] = False
+                await sendMessage("on", app["state"]["active"])
             else:
                 print(msg.data)
-                # await ws.send_str('Hello client :D')
         elif msg.type == web.WSMsgType.ERROR:
-            print('ws connection closed with exception %s' %
+            print('websocket connection closed with exception %s' %
                   ws.exception())
     
     if ws in viewers:
         viewers.remove(ws)
-
     connections.remove(ws)
-    # for _ws in connections:
-        # await _ws.send_str('User disconected!')
-    print('websocket connection closed, conn:' + str(len(connections)) + ' viewers:' + str(len(viewers)))
+    print('websocket connection closed)
 
     return ws
 
 async def sendMessage(title, msg):
-    # print("Sending msg...")
     for _ws in connections:
         await _ws.send_str("{\"" + title + "\": " + json.dumps(msg) + "}")
 
@@ -144,6 +169,7 @@ async def captureImage():
     return image
 
 app = web.Application()
+app["state"] = {"active": False}
 app.add_routes(routes)
 
 async def wrapper():
@@ -153,6 +179,7 @@ async def wrapper():
     await site.start()
     pixel = make_pixel(0.4, 5)
 
+
     while True:
         # await asyncio.sleep(5)
         # await sendMessage("regular", "Hello guys :/")
@@ -160,6 +187,7 @@ async def wrapper():
         ps = await getPs()
         await sendMessage("ps", ps)
         img = await captureImage()
+        
         ov = await getDetectStatus(img, pixel)
         await sendMessage("ov", ov)
 
