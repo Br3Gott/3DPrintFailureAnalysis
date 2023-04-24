@@ -6,6 +6,19 @@ import math
 def distance(point1x, point1y, point2x, point2y):
     return round(math.sqrt((point1x - point2x)**2 + (point1y - point2y)**2), 2)
 
+def get_crop_values(res):
+    smallest_x = res[0][0][0]
+    smallest_y = res[0][0][1]
+    largest_x = res[0][0][0]
+    largest_y = res[0][0][1]
+    for point in res:
+        if point[0][0] < smallest_x: smallest_x = point[0][0]
+        if point[0][0] > largest_x: largest_x = point[0][0]
+        if point[0][1] < smallest_y: smallest_y = point[0][1]
+        if point[0][1] > largest_y: largest_y = point[0][1]
+    
+    return smallest_x, smallest_y, largest_x, largest_y
+
 def filter_image(input_image):
     
     # convert image to hsv format
@@ -40,7 +53,7 @@ def filter_image(input_image):
                     maxRatio = ratio
                     ci = i
         if ci == -1:
-            print("No obj identified!")
+            # print("No obj identified!")
             bin_img_data = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
         else:
             res = contours[ci]
@@ -57,15 +70,16 @@ def filter_image(input_image):
             masked = cv.bitwise_and(input_image, input_image, mask=masked)
 
             # map points from largest contour for cropping
-            smallest_x = res[0][0][0]
-            smallest_y = res[0][0][1]
-            largest_x = res[0][0][0]
-            largest_y = res[0][0][1]
-            for point in res:
-                if point[0][0] < smallest_x: smallest_x = point[0][0]
-                if point[0][0] > largest_x: largest_x = point[0][0]
-                if point[0][1] < smallest_y: smallest_y = point[0][1]
-                if point[0][1] > largest_y: largest_y = point[0][1]
+            # smallest_x = res[0][0][0]
+            # smallest_y = res[0][0][1]
+            # largest_x = res[0][0][0]
+            # largest_y = res[0][0][1]
+            # for point in res:
+            #     if point[0][0] < smallest_x: smallest_x = point[0][0]
+            #     if point[0][0] > largest_x: largest_x = point[0][0]
+            #     if point[0][1] < smallest_y: smallest_y = point[0][1]
+            #     if point[0][1] > largest_y: largest_y = point[0][1]
+            smallest_x, smallest_y, largest_x, largest_y = get_crop_values(res)
 
             # crop image and convert to hsv
             masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/2):largest_y, smallest_x:largest_x]
@@ -73,6 +87,7 @@ def filter_image(input_image):
             masked_shape = masked_cropped.shape
             masked_height = masked_shape[0]-1
             masked_width = masked_shape[1]-1
+            
 
             # sampling colors within the upper parts of the largest and most central contour
             sampling_count = 25000
@@ -134,7 +149,7 @@ def filter_image(input_image):
                             ci = i
 
                 if ci == -1:
-                    print("No obj identified after color sampling!")
+                    # print("No obj identified after color sampling!")
                     bin_img_data = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
                 else:
                     res = contours[ci]
@@ -146,6 +161,12 @@ def filter_image(input_image):
                     color = [255, 255, 255]
                     cv.fillPoly(stencil, contours, color)
 
+                    smallest_x, smallest_y, largest_x, largest_y = get_crop_values(res)
+
                     bin_img_data = cv.bitwise_and(bin_img_data, stencil)
+                    masked_img_data = cv.bitwise_and(hsv, hsv, mask=bin_img_data)
+                    bgr = cv.cvtColor(masked_img_data, cv.COLOR_HSV2BGR)
+                    cv.imwrite("./masked.jpg", bgr[smallest_y:largest_y, smallest_x:largest_x])
+                    bin_img_data = bin_img_data[smallest_y:largest_y, smallest_x:largest_x]
 
     return bin_img_data
