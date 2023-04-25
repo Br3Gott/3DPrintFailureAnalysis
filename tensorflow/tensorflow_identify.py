@@ -24,7 +24,6 @@ class Identify:
 
         # calculate the softmax of a vector
         def softmax(vector):
-            vector[0] = [vector[0][0]/100, vector[0][1]/100]
             e = np.exp(vector)
             return e / e.sum()
 
