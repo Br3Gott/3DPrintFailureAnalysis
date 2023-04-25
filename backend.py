@@ -8,6 +8,7 @@ import random
 import cv2 as cv
 import base64
 import time
+import datetime
 
 from picamera2 import Picamera2 as PiCamera
 camera = PiCamera()
@@ -98,7 +99,7 @@ async def websocket_handler(request):
             elif msg.data == 'activate':
                 app["state"]["active"] = True
                 await sendMessage("on", app["state"]["active"])
-                await send_notification(app["notification_email"], 'Only test dont worry :P')
+                await send_notification(app["notification_email"], 'Print monitoring has started!')
             elif msg.data == 'deactivate':
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
@@ -162,7 +163,7 @@ async def getPs():
 
 async def getDetectStatus(image, pixel):
     #filler for now
-    binary_image = filter_image(image)
+    binary_image, masked_image = filter_image(image)
     tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
     ident = Identify.run(tf_image, verbose=False)
     
@@ -186,7 +187,7 @@ async def getDetectStatus(image, pixel):
     while len(app["history_failed"]) >= app["ctlpnl"]["historylength"]:
         app["history_failed"].pop(0)
     
-    if dnn["success"] < 45:
+    if dnn["success"] < 50:
         app["history_failed"].append(True)
 
         if sum(app["history_failed"]) > app["ctlpnl"]["allowedfails"]:
@@ -212,9 +213,11 @@ async def captureImage():
     # width = 640
     # height = 480
     # image = cv.resize(image, (width, height), interpolation = cv.INTER_AREA)
-    binary_image = filter_image(image)
+    binary_image, masked_image = filter_image(image)
     raw_bytes = cv.imencode('.jpg', binary_image)[1].tobytes()
 
+    curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    cv.imwrite("./capture_data/{}.jpg".format(curr_date), image)
 
     for _ws in viewers:
         await _ws.send_bytes(raw_bytes)
