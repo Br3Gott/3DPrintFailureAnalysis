@@ -4,3 +4,4 @@ my_log_dir/
 __pycache__/
 dataset*/
 tflog*.txt
+constants.py

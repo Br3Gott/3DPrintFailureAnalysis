@@ -1,3 +1,5 @@
+import constants
+
 import subprocess
 import json
 
@@ -20,6 +22,24 @@ from aiohttp import web, MultipartWriter, ClientSession
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
 from tensorflow.tensorflow_identify import Identify
+import smtplib
+from email.mime.text import MIMEText
+
+async def send_email(subject, body, sender, recipients, password):
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recipients)
+    smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    smtp_server.login(sender, password)
+    smtp_server.sendmail(sender, recipients, msg.as_string())
+    smtp_server.quit()
+
+async def send_notification(receiver_email, message_text):
+    # sender_email = "octoprintobserver@gmail.com"
+    # password = "oiadovazynuskzgp"
+
+    await send_email("Octoprint Observer Notification", message_text, constants.sender_email, [receiver_email], constants.password)
 
 routes = web.RouteTableDef()
 routes.static('/assets', './assets')
@@ -55,7 +75,6 @@ async def mjpeg_handler(request):
 
 connections = []
 viewers = []
-active = False
 
 @routes.get('/ws')
 async def websocket_handler(request):
@@ -67,6 +86,7 @@ async def websocket_handler(request):
 
     # Initialize new client with current state
     await sendMessage("on", app["state"]["active"])
+    await sendMessage("controlpanel", app["ctlpnl"])
 
     async for msg in ws:
         if msg.type == web.WSMsgType.TEXT:
@@ -78,10 +98,16 @@ async def websocket_handler(request):
             elif msg.data == 'activate':
                 app["state"]["active"] = True
                 await sendMessage("on", app["state"]["active"])
-                await pausePrint()
+                await send_notification(app["notification_email"], 'Only test dont worry :P')
             elif msg.data == 'deactivate':
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
+            elif "allowedfails=" in msg.data:
+                app["ctlpnl"]["allowedfails"] = int(msg.data[13:])
+                await sendMessage("controlpanel", app["ctlpnl"])
+            elif "historylength=" in msg.data:
+                app["ctlpnl"]["historylength"] = int(msg.data[14:])
+                await sendMessage("controlpanel", app["ctlpnl"])
             else:
                 print(msg.data)
         elif msg.type == web.WSMsgType.ERROR:
@@ -157,6 +183,28 @@ async def getDetectStatus(image, pixel):
     cvs["difference"] = difference
     output["cv"] = cvs
 
+    while len(app["history_failed"]) >= app["ctlpnl"]["historylength"]:
+        app["history_failed"].pop(0)
+    
+    if dnn["success"] < 45:
+        app["history_failed"].append(True)
+
+        if sum(app["history_failed"]) > app["ctlpnl"]["allowedfails"]:
+            if app["state"]["active"] != False:
+                app["state"]["active"] = False
+                await sendMessage("on", app["state"]["active"])
+                # send notification
+                await send_notification(app["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
+                # await sendApp()
+                # send pause command
+                await pausePrint()
+    else:
+        app["history_failed"].append(False)
+
+    app["ctlpnl"]["currfails"] = sum(app["history_failed"])
+    app["ctlpnl"]["currhistorylen"] = len(app["history_failed"])
+    await sendMessage("controlpanel",  app["ctlpnl"])
+
     return output
 
 async def captureImage():
@@ -173,7 +221,7 @@ async def captureImage():
     return image
 
 async def pausePrint():
-    headers = {'X-Api-Key': '11CE191FAD8B4A1E97E246C92B124424'} #API only localy accessible
+    headers = {'X-Api-Key': constants.octoprintkey} #API only localy accessible
     async with ClientSession(headers=headers) as session:
         payload = {
             "command": "pause",
@@ -183,8 +231,28 @@ async def pausePrint():
             print(resp.status)
             print(await resp.text())
 
+# async def sendApp():
+#     headers = {"Content-type": "application/x-www-form-urlencoded"}
+#     async with ClientSession(headers=headers) as session:
+#         payload = {
+#             "token": constants.pushoverkey,
+#             "user": constants.pushoverdavid,
+#             "message": "printer print",
+#         }
+#         async with session.post('https://api.pushover.net/1/messages.json', data=payload) as resp:
+#             print(resp.status)
+#             print(await resp.text())
+
 app = web.Application()
 app["state"] = {"active": False}
+app["history_failed"] = []
+app["notification_email"] = "octoprintobserver@gmail.com"
+app["ctlpnl"] = {
+    "allowedfails": 3,
+    "historylength": 5,
+    "currfails": sum(app["history_failed"]),
+    "currhistorylen": len(app["history_failed"])
+}
 app.add_routes(routes)
 
 async def wrapper():
@@ -196,13 +264,10 @@ async def wrapper():
 
 
     while True:
-        # await asyncio.sleep(5)
-        # await sendMessage("regular", "Hello guys :/")
         await asyncio.sleep(2)
         ps = await getPs()
         await sendMessage("ps", ps)
         img = await captureImage()
-        
         ov = await getDetectStatus(img, pixel)
         await sendMessage("ov", ov)
 
