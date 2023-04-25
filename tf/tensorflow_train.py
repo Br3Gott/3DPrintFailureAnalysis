@@ -1,10 +1,10 @@
 import numpy as np
 import PIL
-import tensorflow as tf
+import tf as tf
 
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
+from tf import keras
+from tf.keras import layers
+from tf.keras.models import Sequential
 
 batch_size = 32
 img_height = 180

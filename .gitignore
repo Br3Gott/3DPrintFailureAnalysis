@@ -5,3 +5,4 @@ __pycache__/
 dataset*/
 tflog*.txt
 constants.py
+*.jpg
