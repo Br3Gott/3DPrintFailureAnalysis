@@ -25,11 +25,12 @@ def filter_image(input_image):
     hsv = cv.cvtColor(input_image, cv.COLOR_BGR2HSV)
 
     # base hsv values for initail filtering
-    lower = np.array([0,60,120])
+    lower = np.array([10,150,150])
     higher = np.array([255, 255, 255])
 
     # filter image based on inital values
     bin_img_data = cv.inRange(hsv, lower, higher)
+    done_masked = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
 
     # contour filtering
     contours, _ = cv.findContours(bin_img_data, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -48,10 +49,16 @@ def filter_image(input_image):
                 cx = int(M['m10']/M['m00'])
                 cy = int(M['m01']/M['m00'])
                 distancemiddle = distance(cx, cy, centerx, centery)
-                ratio = area / distancemiddle
-                if (ratio > maxRatio and distancemiddle < 500):
+                if distancemiddle == 0:
+                    maxRatio = 9999 # high value to prevent anything else
+                    ci = i
+                else:
+                    ratio = area / distancemiddle
+
+                if (ratio > maxRatio and distancemiddle < 500 and area > 500):
                     maxRatio = ratio
                     ci = i
+
         if ci == -1:
             # print("No obj identified!")
             bin_img_data = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
@@ -82,7 +89,7 @@ def filter_image(input_image):
             smallest_x, smallest_y, largest_x, largest_y = get_crop_values(res)
 
             # crop image and convert to hsv
-            masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/2):largest_y, smallest_x:largest_x]
+            masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/5):largest_y, smallest_x:largest_x]
             masked_cropped = cv.cvtColor(masked_cropped, cv.COLOR_BGR2HSV)
             masked_shape = masked_cropped.shape
             masked_height = masked_shape[0]-1
@@ -143,8 +150,13 @@ def filter_image(input_image):
                         cx = int(M['m10']/M['m00'])
                         cy = int(M['m01']/M['m00'])
                         distancemiddle = distance(cx, cy, centerx, centery)
-                        ratio = area / distancemiddle
-                        if (ratio > maxRatio and distancemiddle < 500):
+                        if distancemiddle == 0:
+                            maxRatio = 9999 # high value to prevent anything else
+                            ci = i
+                        else:
+                            ratio = area / distancemiddle
+
+                        if (ratio > maxRatio and distancemiddle < 500 and area > 1200):
                             maxRatio = ratio
                             ci = i
 
@@ -167,6 +179,7 @@ def filter_image(input_image):
                     masked_img_data = cv.bitwise_and(hsv, hsv, mask=bin_img_data)
                     bgr = cv.cvtColor(masked_img_data, cv.COLOR_HSV2BGR)
                     cv.imwrite("./masked.jpg", bgr[smallest_y:largest_y, smallest_x:largest_x])
+                    done_masked = bgr[smallest_y:largest_y, smallest_x:largest_x]
                     bin_img_data = bin_img_data[smallest_y:largest_y, smallest_x:largest_x]
 
-    return bin_img_data
+    return bin_img_data, done_masked

@@ -44,13 +44,13 @@ for folder in folders:
         image_path = ("./datasets/{}/{}").format(dataset, folder)
         if (os.path.isfile(os.path.join(image_path, image_name))):
             image_raw = cv.imread(os.path.join(image_path, image_name))
-            image_filtered = filter_image(image_raw)
+            image_filtered, image_masked = filter_image(image_raw)
             sys.stdout.write("\033[K")
             current_image += 1
             print("Writing files {}% [{}/{}]: ({}filtered/{})".format(round((current_image/(total_image_count*2)) * 100), current_image, total_image_count*2, pre_path, image_name), end="\r")
             cv.imwrite("{}filtered/{}".format(pre_path, image_name), image_filtered)
 
-            image_masked = cv.bitwise_and(image_raw, image_raw, mask=image_filtered)
+            # image_masked = cv.bitwise_and(image_raw, image_raw, mask=image_filtered)
             sys.stdout.write("\033[K")
             current_image += 1
             print("Writing files {}% [{}/{}]: ({}masked/{})".format(round((current_image/(total_image_count*2)) * 100), current_image, total_image_count*2, pre_path, image_name), end="\r")
