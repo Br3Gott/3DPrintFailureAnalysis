@@ -48,19 +48,19 @@ print("| It will do this by similating a print going through the software. |")
 print("| It tests both filtering and detection.                            |")
 print("+-------------------------------------------------------------------+")
 
+results = []
+
 testcases = os.listdir("./testsuite/data")
-print("Available Testcases: {}".format(testcases))
+print("List of tests to run: {}".format(testcases))
 
 for testcase in testcases:
     # Load dataset values.
     data_file = open("./testsuite/data/{}/data.json".format(testcase))
     data = json.load(data_file)
-    print(data)
 
-    print("=== Current Test ===")
+    print("==== Currently Testing ====")
     print("Name: {}".format(data["name"]))
     print("Description: {}".format(data["description"]))
-    print("====================")
 
     image_names = os.listdir("./testsuite/data/{}/images".format(testcase))
     # print("Available Images: {}".format(image_names))
@@ -98,23 +98,53 @@ for testcase in testcases:
             failed["failed_at_layer"] = i
             break
     
-    print("Finished Testing: {}".format(data["name"]))
+    print("===== Testing Results =====")
 
     if failed["failed"] and failed["failed_at_layer"] > data["fail_boundary"] and data["passing_boundary"] > failed["failed_at_layer"]:
         print("Result: SUCCESS.")
     elif not failed["failed"] and not data["fail_boundary"]:
         print("Result: SUCCESS.")
+        results.append({
+            "testcase:": data["name"],
+            "result": True,
+            "lower_layer": data["fail_boundary"],
+            "actual_layer": failed["failed_at_layer"],
+            "higher_layer": data["passing_boundary"]
+        })
     else:
         print("Result: FAILED.")
+        results.append({
+            "testcase:": data["name"],
+            "result": False,
+            "lower_layer": data["fail_boundary"],
+            "actual_layer": failed["failed_at_layer"],
+            "higher_layer": data["passing_boundary"]
+        })
     
-    print("Raw Data:")
-    if data["fail_boundary"]:
-        print("Should fail after: {}".format(data["fail_boundary"]))
-        print("Should fail before: {}".format(data["passing_boundary"]))
-    else:
-        print("Should not fail.")
+    print(results[len(results)-1])
+    if False:
+        print("Raw Data:")
+        if data["fail_boundary"]:
+            print("Should fail after: {}".format(data["fail_boundary"]))
+            print("Should fail before: {}".format(data["passing_boundary"]))
+        else:
+            print("Should not fail.")
 
-    if failed["failed"]:
-        print("Observer observed failure at: {}".format(failed["failed_at_layer"]))
-    else:
-        print("Observer did not observe any failure.")
+        if failed["failed"]:
+            print("Observer observed failure at: {}".format(failed["failed_at_layer"]))
+        else:
+            print("Observer did not observe any failure.")
+
+    print("===========================")
+
+success_count = 0
+for result in results:
+    if result["result"] == True:
+        success_count += 1
+
+print("+=========================+")
+print("|    TestSuite Summary    |")
+print("+=========================+")
+print("Performed {} testruns".format(len(results)))
+print("{} tests succeeded".format(success_count))
+print("{} tests failed".format(len(results)-success_count))
