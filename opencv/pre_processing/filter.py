@@ -143,31 +143,33 @@ def filter_image(input_image):
             hsv_shape = hsv_cropped.shape
             hsv_height = hsv_shape[0]-1
             hsv_width = hsv_shape[1]-1
-            
-            higher_hsv = hsv_cropped[0:int(hsv_height/2), 0:hsv_width]
-            lower_hsv = hsv_cropped[int(hsv_height/2):hsv_height, 0:hsv_width]
 
-            cv.imwrite("./higher.jpg", higher_hsv)
-            cv.imwrite("./lower.jpg", lower_hsv)
-
-            hard_hsv_higher = np.array([255, 255, 255])
-            hard_hsv_lower = np.array([0, 200, 125])
             light_hsv_higher = np.array([255, 255, 255])
-            light_hsv_lower = np.array([0, 120, 100])
+            light_hsv_lower = np.array([0, 130, 120])
 
-            higher_bin = cv.inRange(higher_hsv, hard_hsv_lower, hard_hsv_higher)
-            lower_bin = cv.inRange(lower_hsv, light_hsv_lower, light_hsv_higher)
+            if hsv_height > 150:
+                # Fix bed glare
+                higher_hsv = hsv_cropped[0:int(hsv_height/2), 0:hsv_width]
+                lower_hsv = hsv_cropped[int(hsv_height/2):hsv_height, 0:hsv_width]
 
+                cv.imwrite("./higher.jpg", higher_hsv)
+                cv.imwrite("./lower.jpg", lower_hsv)
 
-            cv.imwrite("./higher.jpg", higher_bin)
-            cv.imwrite("./lower.jpg", lower_bin)
+                hard_hsv_higher = np.array([255, 255, 255])
+                hard_hsv_lower = np.array([0, 200, 125])
 
-            bin_img_data = np.concatenate((higher_bin, lower_bin), axis=0)
+                higher_bin = cv.inRange(higher_hsv, hard_hsv_lower, hard_hsv_higher)
+                lower_bin = cv.inRange(lower_hsv, light_hsv_lower, light_hsv_higher)
+
+                cv.imwrite("./higher.jpg", higher_bin)
+                cv.imwrite("./lower.jpg", lower_bin)
+
+                bin_img_data = np.concatenate((higher_bin, lower_bin), axis=0)
+                contours, hull = get_contour(bin_img_data)
+            else:
+                bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
+
             cv.imwrite("./bin_img_data.jpg", bin_img_data)
-
-
-            # DO AMAZING THINGS
-
             return bin_img_data, masked_cropped
 
 
