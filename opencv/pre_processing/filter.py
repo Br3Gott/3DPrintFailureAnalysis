@@ -52,6 +52,7 @@ def get_contour(bin_image):
             # get convex hull from largest and most central contour
             hull = cv.convexHull(res)
             return res, hull
+    print("error none!")
     return None
         
 
@@ -59,13 +60,15 @@ def filter_image(input_image):
     
     # convert image to hsv format
     hsv = cv.cvtColor(input_image, cv.COLOR_BGR2HSV)
+    cv.imwrite("./hsv.jpg", hsv)
 
     # base hsv values for initail filtering
-    lower = np.array([0,120,120])
+    lower = np.array([0,100,50])
     higher = np.array([255, 255, 255])
 
     # filter image based on inital values
     bin_img_data = cv.inRange(hsv, lower, higher)
+    cv.imwrite("./firstfilter.jpg", bin_img_data)
     done_masked = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
 
     # contour filtering
@@ -111,6 +114,7 @@ def filter_image(input_image):
             masked = cv.bitwise_and(bin_img_data, stencil)
             # create masked image based on binary image (containing largest and most central contour)
             masked = cv.bitwise_and(input_image, input_image, mask=masked)
+            cv.imwrite("./firstcontourremoval.jpg", masked)
 
             # map points from largest contour for cropping
             # smallest_x = res[0][0][0]
@@ -132,12 +136,49 @@ def filter_image(input_image):
             masked_width = masked_shape[1]-1
 
             #cv.drawContours(hsv, [res], 0, (0,255,0), 3)
-            input_image_2 = hsv[smallest_y:largest_y, smallest_x:largest_x]
-            input_cropped = hsv[int(smallest_y+(largest_y-smallest_y)/5):largest_y, smallest_x:largest_x]
-            cv.imwrite("./masked.jpg", masked_cropped)
-            cv.imwrite("./input.jpg", input_cropped)
+            hsv_cropped = hsv[smallest_y:largest_y, smallest_x:largest_x]
+            cv.imwrite("./firstcrop.jpg", hsv_cropped)
+
+
+            hsv_shape = hsv_cropped.shape
+            hsv_height = hsv_shape[0]-1
+            hsv_width = hsv_shape[1]-1
             
+            higher_hsv = hsv_cropped[0:int(hsv_height/2), 0:hsv_width]
+            lower_hsv = hsv_cropped[int(hsv_height/2):hsv_height, 0:hsv_width]
+
+            cv.imwrite("./higher.jpg", higher_hsv)
+            cv.imwrite("./lower.jpg", lower_hsv)
+
+            hard_hsv_higher = np.array([255, 255, 255])
+            hard_hsv_lower = np.array([0, 200, 125])
+            light_hsv_higher = np.array([255, 255, 255])
+            light_hsv_lower = np.array([0, 120, 100])
+
+            higher_bin = cv.inRange(higher_hsv, hard_hsv_lower, hard_hsv_higher)
+            lower_bin = cv.inRange(lower_hsv, light_hsv_lower, light_hsv_higher)
+
+
+            cv.imwrite("./higher.jpg", higher_bin)
+            cv.imwrite("./lower.jpg", lower_bin)
+
+            bin_img_data = np.concatenate((higher_bin, lower_bin), axis=0)
+            cv.imwrite("./bin_img_data.jpg", bin_img_data)
+
+
             # DO AMAZING THINGS
+
+            return bin_img_data, masked_cropped
+
+
+
+
+
+
+
+
+
+
 
             lower = np.array([0,100,80])
             higher = np.array([255, 255, 255])
@@ -245,5 +286,12 @@ def filter_image(input_image):
                     bin_img_data = bin_img_data[smallest_y:largest_y, smallest_x:largest_x]
 
     cv.imwrite("./final.jpg", bin_img_data)
+
+    contours2, _ = get_contour(bin_img_data)
+    cv.drawContours(bin_img_data, [contours2], 0, (0,255,0), 10)
+    cv.drawContours(bin_img_data, [contours2], -1, (0, 255, 0), 3)
+
+    cv.imwrite("./final2.jpg", bin_img_data)
+
     return bin_img_data, done_masked
     # return bin_im2, done_masked
