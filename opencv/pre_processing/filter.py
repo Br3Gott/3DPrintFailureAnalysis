@@ -19,13 +19,49 @@ def get_crop_values(res):
     
     return smallest_x, smallest_y, largest_x, largest_y
 
+def get_contour(bin_image):
+    # contour filtering
+    contours, _ = cv.findContours(bin_image, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    length = len(contours)
+    maxRatio = -1
+    height, width = bin_image.shape
+    centerx = width/2
+    centery = height/2
+    if length > 0:
+        ci = -1
+        for i in range(length):  # find the closest to center and biggest contour (according to area)
+            temp = contours[i]
+            area = cv.contourArea(temp)
+            M = cv.moments(contours[i])
+            if M['m00'] != 0:
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
+                distancemiddle = distance(cx, cy, centerx, centery)
+                if distancemiddle == 0:
+                    maxRatio = 9999 # high value to prevent anything else
+                    ci = i
+                else:
+                    ratio = area / distancemiddle
+
+                if (ratio > maxRatio and distancemiddle < 500 and area > 500):
+                    maxRatio = ratio
+                    ci = i
+
+        if ci != -1:
+            res = contours[ci]
+            # get convex hull from largest and most central contour
+            hull = cv.convexHull(res)
+            return res, hull
+    return None
+        
+
 def filter_image(input_image):
     
     # convert image to hsv format
     hsv = cv.cvtColor(input_image, cv.COLOR_BGR2HSV)
 
     # base hsv values for initail filtering
-    lower = np.array([10,150,150])
+    lower = np.array([0,120,120])
     higher = np.array([255, 255, 255])
 
     # filter image based on inital values
@@ -89,15 +125,40 @@ def filter_image(input_image):
             smallest_x, smallest_y, largest_x, largest_y = get_crop_values(res)
 
             # crop image and convert to hsv
-            masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/5):largest_y, smallest_x:largest_x]
+            masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/2):largest_y, smallest_x:largest_x]
             masked_cropped = cv.cvtColor(masked_cropped, cv.COLOR_BGR2HSV)
             masked_shape = masked_cropped.shape
             masked_height = masked_shape[0]-1
             masked_width = masked_shape[1]-1
+
+            #cv.drawContours(hsv, [res], 0, (0,255,0), 3)
+            input_image_2 = hsv[smallest_y:largest_y, smallest_x:largest_x]
+            input_cropped = hsv[int(smallest_y+(largest_y-smallest_y)/5):largest_y, smallest_x:largest_x]
+            cv.imwrite("./masked.jpg", masked_cropped)
+            cv.imwrite("./input.jpg", input_cropped)
+            
+            # DO AMAZING THINGS
+
+            lower = np.array([0,100,80])
+            higher = np.array([255, 255, 255])
+
+           # filter image based on inital values
+            bin_im2 = cv.inRange(input_cropped, lower, higher)
+            cv.imwrite("./masked2.jpg", bin_im2)
+            # Draw new contour.
+            #res, hull = get_contour(bin_im2)
+            # Black everything out that is not in contour.
+            # We should now have a nice frame of our print.
+            # Maybe crop all corners a little? :P
+            # Maybe filter again with (a lot) less aggresive filtering?
+            # Then finished? No sampling needed maybe?
+            # OR We then sample and filter the cropped image again. We will see
+
+            masked_cropped = cv.bitwise_and(input_cropped, input_cropped, mask=bin_im2)
             
 
             # sampling colors within the upper parts of the largest and most central contour
-            sampling_count = 25000
+            sampling_count = 50000
             sampling_points = []
             for x in range(0, sampling_count):
                 point = [random.randint(0, masked_width), random.randint(0, masked_height)]
@@ -131,7 +192,8 @@ def filter_image(input_image):
             lower = np.array([lowest_h, lowest_s, lowest_v])
             higher = np.array([highest_h, highest_s, highest_v])
 
-            bin_img_data = cv.inRange(hsv, lower, higher)
+            bin_img_data = cv.inRange(input_image_2, lower, higher)
+            cv.imwrite("./aftersampling.jpg", bin_img_data)
 
             # contour filtering
             contours, _ = cv.findContours(bin_img_data, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -176,10 +238,12 @@ def filter_image(input_image):
                     smallest_x, smallest_y, largest_x, largest_y = get_crop_values(res)
 
                     bin_img_data = cv.bitwise_and(bin_img_data, stencil)
-                    masked_img_data = cv.bitwise_and(hsv, hsv, mask=bin_img_data)
+                    masked_img_data = cv.bitwise_and(input_image_2, input_image_2, mask=bin_img_data)
                     bgr = cv.cvtColor(masked_img_data, cv.COLOR_HSV2BGR)
-                    cv.imwrite("./masked.jpg", bgr[smallest_y:largest_y, smallest_x:largest_x])
+                    # cv.imwrite("./masked.jpg", bgr[smallest_y:largest_y, smallest_x:largest_x])
                     done_masked = bgr[smallest_y:largest_y, smallest_x:largest_x]
                     bin_img_data = bin_img_data[smallest_y:largest_y, smallest_x:largest_x]
 
+    cv.imwrite("./final.jpg", bin_img_data)
     return bin_img_data, done_masked
+    # return bin_im2, done_masked
