@@ -20,13 +20,14 @@ const ControlPanelButtons = styled.div`
 `
 
 export default function ModeButtons({ socketUrl }) {
-    
+
     const [allowedfailsnum, setallowedfailsnum] = useState(3);
     const [historylengthnum, sethistorylengthnum] = useState(5);
 
     const [fails, setfails] = useState(0);
     const [historylen, sethistorylen] = useState(0);
-
+    
+    const [alertemail, setalertemail] = useState("");
 
     const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
     const [active, setActive] = useState(false);
@@ -44,6 +45,9 @@ export default function ModeButtons({ socketUrl }) {
 
                 setfails(res["controlpanel"].currfails);
                 sethistorylen(res["controlpanel"].currhistorylen);
+            }
+            else if (res["email"] != null) {
+                setalertemail(res["email"]);
             }
         }
     }, [lastMessage]);
@@ -63,13 +67,20 @@ export default function ModeButtons({ socketUrl }) {
                     <p>{fails} failed of {historylen}</p>
                 </ControlPanelButtons>
                 <ControlPanelButtons>
+                    <label htmlFor="email">
+                        <p>Email for alerts:</p>
+                        <input id="email" type="email" value={alertemail} onChange={(e) => {setalertemail(e.target.value) }}></input>
+                        <button onClick={() => { let email = document.querySelector("#email"); sendMessage("email=" + email.value); }}>Update email</button>
+                    </label>
+                </ControlPanelButtons>
+                <ControlPanelButtons>
                     <label htmlFor="allowedfails">
                         <p>Allowed fails</p>
-                        <input id="allowedfails" type="number" value={allowedfailsnum} onChange={ (e) => {sendMessage("allowedfails=" + e.target.value); setallowedfailsnum(e.target.value)} }></input>
+                        <input id="allowedfails" type="number" value={allowedfailsnum}></input>
                     </label>
                     <label htmlFor="historylength">
                         <p>History length</p>
-                        <input id="historylength" type="number" value={historylengthnum} onChange={ (e) => {sendMessage("historylength=" + e.target.value); sethistorylengthnum(e.target.value)} }></input>
+                        <input id="historylength" type="number" value={historylengthnum} onChange={(e) => { sendMessage("historylength=" + e.target.value); sethistorylengthnum(e.target.value) }}></input>
                     </label>
                 </ControlPanelButtons>
             </StatusCard>
