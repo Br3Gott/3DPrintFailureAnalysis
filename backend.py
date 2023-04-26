@@ -37,13 +37,10 @@ async def send_email(subject, body, sender, recipients, password):
     smtp_server.quit()
 
 async def send_notification(receiver_email, message_text):
-    # sender_email = "octoprintobserver@gmail.com"
-    # password = "oiadovazynuskzgp"
-
     await send_email("Octoprint Observer Notification", message_text, constants.sender_email, [receiver_email], constants.password)
 
 routes = web.RouteTableDef()
-routes.static('/assets', './assets')
+# routes.static('/assets', './assets')
 
 @routes.get('/')
 async def static_content(request):
@@ -88,6 +85,7 @@ async def websocket_handler(request):
     # Initialize new client with current state
     await sendMessage("on", app["state"]["active"])
     await sendMessage("controlpanel", app["ctlpnl"])
+    await sendMessage("email", app["ctlpnl"]["notification_email"])
 
     async for msg in ws:
         if msg.type == web.WSMsgType.TEXT:
@@ -99,7 +97,7 @@ async def websocket_handler(request):
             elif msg.data == 'activate':
                 app["state"]["active"] = True
                 await sendMessage("on", app["state"]["active"])
-                await send_notification(app["notification_email"], 'Print monitoring has started!')
+                await send_notification(app["ctlpnl"]["notification_email"], 'Print monitoring has started!')
             elif msg.data == 'deactivate':
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
@@ -109,6 +107,10 @@ async def websocket_handler(request):
             elif "historylength=" in msg.data:
                 app["ctlpnl"]["historylength"] = int(msg.data[14:])
                 await sendMessage("controlpanel", app["ctlpnl"])
+            elif "email=" in msg.data:
+                app["ctlpnl"]["notification_email"] = msg.data[6:]
+                await sendMessage("email", app["ctlpnl"]["notification_email"])
+                print("changed email:" + app["ctlpnl"]["notification_email"])
             else:
                 print(msg.data)
         elif msg.type == web.WSMsgType.ERROR:
@@ -195,7 +197,7 @@ async def getDetectStatus(image, pixel):
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
                 # send notification
-                await send_notification(app["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
+                await send_notification(app["ctlpnl"]["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
                 # await sendApp()
                 # send pause command
                 await pausePrint()
@@ -216,8 +218,8 @@ async def captureImage():
     binary_image, masked_image = filter_image(image)
     raw_bytes = cv.imencode('.jpg', binary_image)[1].tobytes()
 
-    curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
-    cv.imwrite("./capture_data/{}.jpg".format(curr_date), image)
+    # curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    # cv.imwrite("./capture_data/{}.jpg".format(curr_date), image)
 
     for _ws in viewers:
         await _ws.send_bytes(raw_bytes)
@@ -249,12 +251,12 @@ async def pausePrint():
 app = web.Application()
 app["state"] = {"active": False}
 app["history_failed"] = []
-app["notification_email"] = "octoprintobserver@gmail.com"
 app["ctlpnl"] = {
     "allowedfails": 3,
     "historylength": 5,
     "currfails": sum(app["history_failed"]),
-    "currhistorylen": len(app["history_failed"])
+    "currhistorylen": len(app["history_failed"]),
+    "notification_email": "octoprintobserver@gmail.com"
 }
 app.add_routes(routes)
 
