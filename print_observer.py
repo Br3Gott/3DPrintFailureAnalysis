@@ -9,7 +9,7 @@ import datetime
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
 
-from tensorflow.tensorflow_identify import Identify
+from tf.tensorflow_identify import Identify
 
 camera = PiCamera()
 camera.start()

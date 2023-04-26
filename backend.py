@@ -8,6 +8,7 @@ import random
 import cv2 as cv
 import base64
 import time
+import datetime
 
 from picamera2 import Picamera2 as PiCamera
 camera = PiCamera()
@@ -21,7 +22,7 @@ from aiohttp import web, MultipartWriter, ClientSession
 
 from opencv.pre_processing.filter import filter_image
 from opencv.pixel_observer.pixel import make_pixel
-from tensorflow.tensorflow_identify import Identify
+from tf.tensorflow_identify import Identify
 import smtplib
 from email.mime.text import MIMEText
 
@@ -36,13 +37,10 @@ async def send_email(subject, body, sender, recipients, password):
     smtp_server.quit()
 
 async def send_notification(receiver_email, message_text):
-    # sender_email = "octoprintobserver@gmail.com"
-    # password = "oiadovazynuskzgp"
-
     await send_email("Octoprint Observer Notification", message_text, constants.sender_email, [receiver_email], constants.password)
 
 routes = web.RouteTableDef()
-routes.static('/assets', './assets')
+# routes.static('/assets', './assets')
 
 @routes.get('/')
 async def static_content(request):
@@ -87,6 +85,7 @@ async def websocket_handler(request):
     # Initialize new client with current state
     await sendMessage("on", app["state"]["active"])
     await sendMessage("controlpanel", app["ctlpnl"])
+    await sendMessage("email", app["ctlpnl"]["notification_email"])
 
     async for msg in ws:
         if msg.type == web.WSMsgType.TEXT:
@@ -98,7 +97,7 @@ async def websocket_handler(request):
             elif msg.data == 'activate':
                 app["state"]["active"] = True
                 await sendMessage("on", app["state"]["active"])
-                await send_notification(app["notification_email"], 'Only test dont worry :P')
+                await send_notification(app["ctlpnl"]["notification_email"], 'Print monitoring has started!')
             elif msg.data == 'deactivate':
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
@@ -108,6 +107,10 @@ async def websocket_handler(request):
             elif "historylength=" in msg.data:
                 app["ctlpnl"]["historylength"] = int(msg.data[14:])
                 await sendMessage("controlpanel", app["ctlpnl"])
+            elif "email=" in msg.data:
+                app["ctlpnl"]["notification_email"] = msg.data[6:]
+                await sendMessage("email", app["ctlpnl"]["notification_email"])
+                print("changed email:" + app["ctlpnl"]["notification_email"])
             else:
                 print(msg.data)
         elif msg.type == web.WSMsgType.ERROR:
@@ -162,7 +165,7 @@ async def getPs():
 
 async def getDetectStatus(image, pixel):
     #filler for now
-    binary_image = filter_image(image)
+    binary_image, masked_image = filter_image(image)
     tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
     ident = Identify.run(tf_image, verbose=False)
     
@@ -186,7 +189,7 @@ async def getDetectStatus(image, pixel):
     while len(app["history_failed"]) >= app["ctlpnl"]["historylength"]:
         app["history_failed"].pop(0)
     
-    if dnn["success"] < 45:
+    if dnn["success"] < 50:
         app["history_failed"].append(True)
 
         if sum(app["history_failed"]) > app["ctlpnl"]["allowedfails"]:
@@ -194,7 +197,7 @@ async def getDetectStatus(image, pixel):
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
                 # send notification
-                await send_notification(app["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
+                await send_notification(app["ctlpnl"]["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
                 # await sendApp()
                 # send pause command
                 await pausePrint()
@@ -212,9 +215,11 @@ async def captureImage():
     # width = 640
     # height = 480
     # image = cv.resize(image, (width, height), interpolation = cv.INTER_AREA)
-    binary_image = filter_image(image)
+    binary_image, masked_image = filter_image(image)
     raw_bytes = cv.imencode('.jpg', binary_image)[1].tobytes()
 
+    # curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    # cv.imwrite("./capture_data/{}.jpg".format(curr_date), image)
 
     for _ws in viewers:
         await _ws.send_bytes(raw_bytes)
@@ -246,12 +251,12 @@ async def pausePrint():
 app = web.Application()
 app["state"] = {"active": False}
 app["history_failed"] = []
-app["notification_email"] = "octoprintobserver@gmail.com"
 app["ctlpnl"] = {
     "allowedfails": 3,
     "historylength": 5,
     "currfails": sum(app["history_failed"]),
-    "currhistorylen": len(app["history_failed"])
+    "currhistorylen": len(app["history_failed"]),
+    "notification_email": "octoprintobserver@gmail.com"
 }
 app.add_routes(routes)
 

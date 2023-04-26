@@ -17,7 +17,7 @@ path = path + "/" + sys.argv[1] + "_"
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import cv2 as cv
-from tensorflow.tensorflow_identify import Identify
+from tf.tensorflow_identify import Identify
 import datetime
 
 date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
