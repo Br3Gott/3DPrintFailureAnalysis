@@ -76,11 +76,13 @@ for testcase in testcases:
     }
 
     for i, image in enumerate(image_names):
-        image = cv.imread("./testsuite/data/{}/images/{}".format(testcase, image))
         # print(i)
+        # print(image)
+        img_name = image
+        image = cv.imread("./testsuite/data/{}/images/{}".format(testcase, image))
         binary_image, masked_image = filter_image(image)
         tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
-        if identify_testsuite(tf_image) == True:
+        if identify_testsuite(tf_image) == False:
             # Big success
             # print("Success")
             history.pop(0)
@@ -90,6 +92,8 @@ for testcase in testcases:
             # print("Fail")
             history.pop(0)
             history.append(False)
+            print("Failed: {}".format(img_name))
+            # cv.imwrite("./{}_out.jpg".format(img_name), tf_image)
 
         # print(sum(history))
         if sum(history) < 3:
@@ -102,6 +106,13 @@ for testcase in testcases:
 
     if failed["failed"] and failed["failed_at_layer"] > data["fail_boundary"] and data["passing_boundary"] > failed["failed_at_layer"]:
         print("Result: SUCCESS.")
+        results.append({
+            "testcase:": data["name"],
+            "result": True,
+            "lower_layer": data["fail_boundary"],
+            "actual_layer": failed["failed_at_layer"],
+            "higher_layer": data["passing_boundary"]
+        })
     elif not failed["failed"] and not data["fail_boundary"]:
         print("Result: SUCCESS.")
         results.append({
@@ -121,7 +132,8 @@ for testcase in testcases:
             "higher_layer": data["passing_boundary"]
         })
     
-    print(results[len(results)-1])
+    if len(results) > 0:
+        print(results[len(results)-1])
     if False:
         print("Raw Data:")
         if data["fail_boundary"]:
