@@ -145,7 +145,7 @@ def filter_image(input_image):
             hsv_width = hsv_shape[1]-1
 
             light_hsv_higher = np.array([255, 255, 255])
-            light_hsv_lower = np.array([0, 130, 120])
+            light_hsv_lower = np.array([0, 120, 100])
 
             if hsv_height > 150:
                 # Fix bed glare
@@ -289,11 +289,11 @@ def filter_image(input_image):
 
     cv.imwrite("./final.jpg", bin_img_data)
 
-    contours2, _ = get_contour(bin_img_data)
-    cv.drawContours(bin_img_data, [contours2], 0, (0,255,0), 10)
-    cv.drawContours(bin_img_data, [contours2], -1, (0, 255, 0), 3)
+    # contours2, _ = get_contour(bin_img_data)
+    # cv.drawContours(bin_img_data, [contours2], 0, (0,255,0), 10)
+    # cv.drawContours(bin_img_data, [contours2], -1, (0, 255, 0), 3)
 
-    cv.imwrite("./final2.jpg", bin_img_data)
+    # cv.imwrite("./final2.jpg", bin_img_data)
 
     return bin_img_data, done_masked
     # return bin_im2, done_masked
