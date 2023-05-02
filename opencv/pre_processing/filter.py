@@ -166,6 +166,12 @@ def filter_image(input_image):
 
                 bin_img_data = np.concatenate((higher_bin, lower_bin), axis=0)
                 contours, hull = get_contour(bin_img_data)
+
+                smallest_x, smallest_y, largest_x, largest_y = get_crop_values(contours)
+                hsv_cropped = hsv_cropped[smallest_y:largest_y, smallest_x:largest_x]
+
+                bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
+
             else:
                 bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
 

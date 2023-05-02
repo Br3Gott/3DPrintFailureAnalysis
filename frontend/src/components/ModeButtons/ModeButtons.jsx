@@ -76,7 +76,7 @@ export default function ModeButtons({ socketUrl }) {
                 <ControlPanelButtons>
                     <label htmlFor="allowedfails">
                         <p>Allowed fails</p>
-                        <input id="allowedfails" type="number" value={allowedfailsnum}></input>
+                        <input id="allowedfails" type="number" value={allowedfailsnum} onChange={(e) => { sendMessage("allowedfails=" + e.target.value); setallowedfailsnum(e.target.value) }}></input>
                     </label>
                     <label htmlFor="historylength">
                         <p>History length</p>
