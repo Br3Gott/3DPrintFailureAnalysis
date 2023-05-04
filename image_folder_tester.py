@@ -1,3 +1,10 @@
+#####################################################
+# Script to test for broken/invalid files.          #
+# Prints all invalid files to help troubleshooting. #
+# Only allows extensions valid for TensorFlow       #
+#####################################################
+
+
 from pathlib import Path
 import imghdr
 

@@ -13,6 +13,8 @@ folders = [f for f in os.listdir("./datasets/{}".format(dataset)) if "raw" in f]
 for folder in folders:
     print("Processing folder: ./datasets/{}".format(folder))
 
+    # Create folder structure for output.
+    # If directory already exists remove directory and files.
     if "success" in folder:      
         pre_path = "./datasets/{}/success_".format(dataset)
         if os.path.isdir("./datasets/{}/success_filtered".format(dataset)):
@@ -40,6 +42,8 @@ for folder in folders:
 
     total_image_count = len(os.listdir("./datasets/{}/{}".format(dataset, folder)))
     current_image = 0
+
+    # Go through all images, filter and mask them and place them in the correct folder.
     for image_name in os.listdir("./datasets/{}/{}".format(dataset, folder)):
         image_path = ("./datasets/{}/{}").format(dataset, folder)
         if (os.path.isfile(os.path.join(image_path, image_name))):
@@ -50,7 +54,6 @@ for folder in folders:
             print("Writing files {}% [{}/{}]: ({}filtered/{})".format(round((current_image/(total_image_count*2)) * 100), current_image, total_image_count*2, pre_path, image_name), end="\r")
             cv.imwrite("{}filtered/{}".format(pre_path, image_name), image_filtered)
 
-            # image_masked = cv.bitwise_and(image_raw, image_raw, mask=image_filtered)
             sys.stdout.write("\033[K")
             current_image += 1
             print("Writing files {}% [{}/{}]: ({}masked/{})".format(round((current_image/(total_image_count*2)) * 100), current_image, total_image_count*2, pre_path, image_name), end="\r")

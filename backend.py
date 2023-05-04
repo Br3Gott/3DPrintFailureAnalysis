@@ -1,3 +1,18 @@
+####################################################
+# Name                                             #
+# Backend Server                                   #
+# Usage                                            #
+# NOTE: First enter credentials in constants.py    #
+# backend.py                                       #
+#                                                  #
+# Description                                      #
+# Backend to do communication with the frontend.   #
+#                                                  #
+# Output / Function                                #
+# Streams live preview, serves frontend and        #
+# serves predictions and history.                  #
+####################################################
+
 import constants
 
 import subprocess

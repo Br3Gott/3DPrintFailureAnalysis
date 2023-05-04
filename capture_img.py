@@ -1,3 +1,17 @@
+####################################################
+# Name                                             #
+# Capture Image Script                             #
+# Usage                                            #
+# capture_img.py <name> <fail/success>             #
+#
+# Description                                      #
+# Script to collect images of the current print.   #
+#                                                  #
+# Output / Function                                #
+# Takes images, filters and masks them and saves   #
+# them in the folder structure for make_dataset.py #
+####################################################
+
 from picamera2 import Picamera2
 import time
 import os

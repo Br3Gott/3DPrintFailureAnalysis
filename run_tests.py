@@ -1,7 +1,8 @@
-# Running testsuite should:
-# * Look through the data folder for testcases.
-# * Run all testcases with the given model.
-# * Return stats on how it performs.
+###################################################
+# Usage: run_tests.py                             #
+# Loads and runs all tests in /testsuite/data/    #
+# Prints the result of the tests in the terminal. #
+###################################################
 
 import json
 import os
@@ -76,26 +77,20 @@ for testcase in testcases:
     }
 
     for i, image in enumerate(image_names):
-        # print(i)
-        # print(image)
         img_name = image
         image = cv.imread("./testsuite/data/{}/images/{}".format(testcase, image))
         binary_image, masked_image = filter_image(image)
         tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
         if identify_testsuite(tf_image) == False:
             # Big success
-            # print("Success")
             history.pop(0)
             history.append(True)
         else:
             # Big fail
-            # print("Fail")
             history.pop(0)
             history.append(False)
             print("Failed: {}".format(img_name))
-            # cv.imwrite("./{}_out.jpg".format(img_name), tf_image)
 
-        # print(sum(history))
         if sum(history) < 3:
             # We failed
             failed["failed"] = True

@@ -122,10 +122,7 @@ def filter_image(input_image):
             masked_cropped = masked[int(smallest_y+(largest_y-smallest_y)/2):largest_y, smallest_x:largest_x]
             masked_cropped = cv.cvtColor(masked_cropped, cv.COLOR_BGR2HSV)
             masked_shape = masked_cropped.shape
-            masked_height = masked_shape[0]-1
-            masked_width = masked_shape[1]-1
 
-            #cv.drawContours(hsv, [res], 0, (0,255,0), 3)
             hsv_cropped = hsv[smallest_y:largest_y, smallest_x:largest_x]
             cv.imwrite("./firstcrop.jpg", hsv_cropped)
 
@@ -161,7 +158,6 @@ def filter_image(input_image):
                 hsv_cropped = hsv_cropped[smallest_y:largest_y, smallest_x:largest_x]
 
                 bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
-
             else:
                 bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
 

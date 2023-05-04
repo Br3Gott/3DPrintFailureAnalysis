@@ -1,3 +1,10 @@
+####################################
+# Usage: make_dataset.py <name>    #
+# Makes dataset with name <name>   #
+# Dataset will contain all folders #
+# present in dataset_folders.txt   #
+####################################
+
 import os
 import shutil
 import sys
