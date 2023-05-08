@@ -31,21 +31,16 @@ def identify_testsuite(img):
 
     predictions_lite = classify_lite(sequential_input=new_img)["dense_1"]
 
-    # calculate the softmax of a vector
-    def softmax(vector):
-        e = np.exp(vector)
-        return e / e.sum()
-
-    score_lite = softmax(predictions_lite)
-
-    if (score_lite[0][0] < score_lite[0][1]):
+    # if (predictions_lite[0][0] < predictions_lite[0][1]):
+    #     return False
+    if (predictions_lite[0][1] > 0.01):
         return False
     return True
 
 print("+-------------------------------------------------------------------+")
 print("| Testsuite for Print Observer.                                     |")
 print("| These tests will test the entire softwares functionality.         |")
-print("| It will do this by similating a print going through the software. |")
+print("| It will do this by simulating a print processed by the software.  |")
 print("| It tests both filtering and detection.                            |")
 print("+-------------------------------------------------------------------+")
 
@@ -98,30 +93,39 @@ for testcase in testcases:
             break
     
     print("===== Testing Results =====")
-
-    if failed["failed"] and failed["failed_at_layer"] > data["fail_boundary"] and data["passing_boundary"] > failed["failed_at_layer"]:
-        print("Result: SUCCESS.")
-        results.append({
-            "testcase:": data["name"],
-            "result": True,
-            "lower_layer": data["fail_boundary"],
-            "actual_layer": failed["failed_at_layer"],
-            "higher_layer": data["passing_boundary"]
-        })
-    elif not failed["failed"] and not data["fail_boundary"]:
-        print("Result: SUCCESS.")
-        results.append({
-            "testcase:": data["name"],
-            "result": True,
-            "lower_layer": data["fail_boundary"],
-            "actual_layer": failed["failed_at_layer"],
-            "higher_layer": data["passing_boundary"]
-        })
+    if failed["failed"]:
+        if data["fail_boundary"] is None:
+            print("Result: FAILED.")
+            results.append({
+                "testcase:": data["name"],
+                "result": False,
+                "lower_layer": data["fail_boundary"],
+                "actual_layer": failed["failed_at_layer"],
+                "higher_layer": data["passing_boundary"]
+            })
+        elif failed["failed_at_layer"] < data["fail_boundary"] or failed["failed_at_layer"] > data["passing_boundary"]:
+            print("Result: FAILED.")
+            results.append({
+                "testcase:": data["name"],
+                "result": False,
+                "lower_layer": data["fail_boundary"],
+                "actual_layer": failed["failed_at_layer"],
+                "higher_layer": data["passing_boundary"]
+            })
+        else:
+            print("Result: SUCCESS.")
+            results.append({
+                "testcase:": data["name"],
+                "result": True,
+                "lower_layer": data["fail_boundary"],
+                "actual_layer": failed["failed_at_layer"],
+                "higher_layer": data["passing_boundary"]
+            })
     else:
-        print("Result: FAILED.")
+        print("Result: SUCCESS.")
         results.append({
             "testcase:": data["name"],
-            "result": False,
+            "result": True,
             "lower_layer": data["fail_boundary"],
             "actual_layer": failed["failed_at_layer"],
             "higher_layer": data["passing_boundary"]
