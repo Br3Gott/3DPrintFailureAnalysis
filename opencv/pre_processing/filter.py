@@ -43,7 +43,7 @@ def get_contour(bin_image):
                 else:
                     ratio = area / distancemiddle
 
-                if (ratio > maxRatio and distancemiddle < 500 and area > 500):
+                if (ratio > maxRatio and distancemiddle < 1200 and area > 500):
                     maxRatio = ratio
                     ci = i
 
@@ -53,7 +53,7 @@ def get_contour(bin_image):
             hull = cv.convexHull(res)
             return res, hull
     print("error none!")
-    return None
+    return [], []
         
 
 def filter_image(input_image):
@@ -94,7 +94,7 @@ def filter_image(input_image):
                 else:
                     ratio = area / distancemiddle
 
-                if (ratio > maxRatio and distancemiddle < 500 and area > 500):
+                if (ratio > maxRatio and distancemiddle < 1200 and area > 500):
                     maxRatio = ratio
                     ci = i
 
@@ -134,7 +134,7 @@ def filter_image(input_image):
             light_hsv_higher = np.array([255, 255, 255])
             light_hsv_lower = np.array([0, 120, 100])
 
-            if hsv_height > 150:
+            if hsv_height > 75:
                 # Fix bed glare
                 higher_hsv = hsv_cropped[0:int(hsv_height/2), 0:hsv_width]
                 lower_hsv = hsv_cropped[int(hsv_height/2):hsv_height, 0:hsv_width]
@@ -143,7 +143,7 @@ def filter_image(input_image):
                 cv.imwrite("./lower.jpg", lower_hsv)
 
                 hard_hsv_higher = np.array([255, 255, 255])
-                hard_hsv_lower = np.array([0, 200, 125])
+                hard_hsv_lower = np.array([0, 205, 130])
 
                 higher_bin = cv.inRange(higher_hsv, hard_hsv_lower, hard_hsv_higher)
                 lower_bin = cv.inRange(lower_hsv, light_hsv_lower, light_hsv_higher)
@@ -152,12 +152,26 @@ def filter_image(input_image):
                 cv.imwrite("./lower.jpg", lower_bin)
 
                 bin_img_data = np.concatenate((higher_bin, lower_bin), axis=0)
+
                 contours, hull = get_contour(bin_img_data)
+                if len(contours) > 0:
+                    smallest_x, smallest_y, largest_x, largest_y = get_crop_values(contours)
+                    bin_img_data = bin_img_data[smallest_y:largest_y, smallest_x:largest_x]
 
-                smallest_x, smallest_y, largest_x, largest_y = get_crop_values(contours)
-                hsv_cropped = hsv_cropped[smallest_y:largest_y, smallest_x:largest_x]
+                    
+                    contours, hull = get_contour(bin_img_data)
+                    if len(contours) > 0:
+                        stencil = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
+                        contours = [np.array(hull)]
+                        color = [255, 255, 255]
+                        cv.fillPoly(stencil, contours, color)
+                        # create binary image using stencil
+                        bin_img_data =  cv.bitwise_and(bin_img_data, stencil)
+                    else:
+                        bin_img_data = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
+                else:
+                    bin_img_data = np.zeros(bin_img_data.shape).astype(bin_img_data.dtype)
 
-                bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
             else:
                 bin_img_data = cv.inRange(hsv_cropped, light_hsv_lower, light_hsv_higher)
 

@@ -122,14 +122,24 @@ for testcase in testcases:
                 "higher_layer": data["passing_boundary"]
             })
     else:
-        print("Result: SUCCESS.")
-        results.append({
-            "testcase:": data["name"],
-            "result": True,
-            "lower_layer": data["fail_boundary"],
-            "actual_layer": failed["failed_at_layer"],
-            "higher_layer": data["passing_boundary"]
-        })
+        if data["fail_boundary"] is None:
+            print("Result: SUCCESS.")
+            results.append({
+                "testcase:": data["name"],
+                "result": True,
+                "lower_layer": data["fail_boundary"],
+                "actual_layer": failed["failed_at_layer"],
+                "higher_layer": data["passing_boundary"]
+            })
+        else:
+            print("Result: FAILED.")
+            results.append({
+                "testcase:": data["name"],
+                "result": False,
+                "lower_layer": data["fail_boundary"],
+                "actual_layer": failed["failed_at_layer"],
+                "higher_layer": data["passing_boundary"]
+            })
     
     if len(results) > 0:
         print(results[len(results)-1])
