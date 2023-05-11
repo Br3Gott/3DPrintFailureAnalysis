@@ -38,12 +38,12 @@ def get_contour(bin_image):
                 cy = int(M['m01']/M['m00'])
                 distancemiddle = distance(cx, cy, centerx, centery)
                 if distancemiddle == 0:
-                    maxRatio = 9999 # high value to prevent anything else
+                    ratio = 9999 # high value to prevent anything else
                     ci = i
                 else:
                     ratio = area / distancemiddle
 
-                if (ratio > maxRatio and distancemiddle < 1200 and area > 500):
+                if (ratio > maxRatio and distancemiddle < 1200 and area > 20000):
                     maxRatio = ratio
                     ci = i
 
@@ -52,7 +52,7 @@ def get_contour(bin_image):
             # get convex hull from largest and most central contour
             hull = cv.convexHull(res)
             return res, hull
-    print("error none!")
+    #print("error none!")
     return [], []
         
 
@@ -94,7 +94,7 @@ def filter_image(input_image):
                 else:
                     ratio = area / distancemiddle
 
-                if (ratio > maxRatio and distancemiddle < 1200 and area > 500):
+                if (ratio > maxRatio and distancemiddle < 1200 and area > 20000):
                     maxRatio = ratio
                     ci = i
 
@@ -143,7 +143,7 @@ def filter_image(input_image):
                 cv.imwrite("./lower.jpg", lower_hsv)
 
                 hard_hsv_higher = np.array([255, 255, 255])
-                hard_hsv_lower = np.array([0, 205, 130])
+                hard_hsv_lower = np.array([0, 165, 120])
 
                 higher_bin = cv.inRange(higher_hsv, hard_hsv_lower, hard_hsv_higher)
                 lower_bin = cv.inRange(lower_hsv, light_hsv_lower, light_hsv_higher)
