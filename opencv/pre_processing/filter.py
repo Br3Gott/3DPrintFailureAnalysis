@@ -74,7 +74,7 @@ def filter_soft(image):
 
 def filter_hard(image):
     hard_hsv_higher = np.array([255, 255, 255])
-    hard_hsv_lower = np.array([0, 165, 120])
+    hard_hsv_lower = np.array([0, 165, 150])
 
     return cv.inRange(image, hard_hsv_lower, hard_hsv_higher)
 
