@@ -31,9 +31,7 @@ def identify_testsuite(img):
 
     predictions_lite = classify_lite(sequential_input=new_img)["dense_1"]
 
-    # if (predictions_lite[0][0] < predictions_lite[0][1]):
-    #     return False
-    if (predictions_lite[0][1] > 0.01):
+    if (predictions_lite[0][1] > 0.001):
         return False
     return True
 
