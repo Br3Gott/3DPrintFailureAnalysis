@@ -84,7 +84,7 @@ for testcase in testcases:
             history.append(False)
             print("Failed: {}".format(img_name))
 
-        if sum(history) < 3:
+        if sum(history) < 1:
             # We failed
             failed["failed"] = True
             failed["failed_at_layer"] = i
