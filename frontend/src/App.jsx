@@ -1,11 +1,8 @@
 import styled from 'styled-components'
 import FailureOverview from './components/FailureOverview/FailureOverview'
-import FilterSettings from './components/FilterSettings/FilterSettings'
 import ModeButtons from './components/ModeButtons/ModeButtons'
 import SystemStats from './components/SystemStats/SystemStats'
-import Controls from './components/Controls/Controls'
 import Livestream from './components/Livestream/Livestream'
-import FilteredImage from './components/FilteredImage/FilteredImage'
 import { useState, useEffect } from 'react'
 import ModuleContainer from './components/ModuleContainer'
 import { StatusCard } from './components/StatusCard'
@@ -53,8 +50,7 @@ function App() {
   }
 
   // Socket stuff
-
-  const [socketUrl, setSocketUrl] = useState('ws://10.8.160.199:8080/ws');
+  const [socketUrl, setSocketUrl] = useState("ws://" + window.location.href.split("/")[2] + "/ws");
 
   return (
     <>

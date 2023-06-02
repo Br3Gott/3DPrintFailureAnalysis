@@ -32,23 +32,11 @@ export default function SystemStats({ socketUrl }) {
         }
     }, [lastMessage]);
 
-    const diskUsage = 1.5;
-    const diskAvailable = 8;
-    const cpuTemperature = 75;
-    const memoryUsage = 700;
-    const cpuFrequency = 450;
-
     return (
         <ModuleContainer>
             <StatusCard>
                 System Status
             </StatusCard>
-            <StatusCardSplit>
-                <LargeStatusCardItem>Disk: {diskUsage}/{diskAvailable}gb ({(diskUsage / diskAvailable) * 100}%)</LargeStatusCardItem>
-                <LargeStatusCardItem>CPU Freq: {cpuFrequency}Mhz</LargeStatusCardItem>
-                <LargeStatusCardItem>Memory Usage: {memoryUsage}mb</LargeStatusCardItem>
-                <LargeStatusCardItem>CPU Temp: {cpuTemperature}</LargeStatusCardItem>
-            </StatusCardSplit>
                 <StatusCardSplit>
                     <StatusCardItem>User</StatusCardItem>
                     <StatusCardItem>Process Id</StatusCardItem>

@@ -5,19 +5,43 @@ import { StatusCard } from "../StatusCard";
 import styled from "styled-components";
 
 const Btn = styled.button`
-  margin: 1em;
   color: black;
   border: 1px solid black;
   background-color: ${props => props.active ? "lightgreen" : "white"};
 `;
 
+const Ebtn = styled.button`
+    height: fit-content;
+    width: fit-content;
+
+    padding: 0.25em;
+    background-color: white;
+    color: #252525;
+    border: thin solid gray;
+
+    p {
+        height: fit-content;
+        padding: 0;
+        margin: 0;
+    }
+`
+
+const Input = styled.input`
+    padding: 0.25em;
+    background-color: white;
+    color: black;
+    border: thin solid gray;
+`
+
 const ControlPanelButtons = styled.div`
     display: flex;
     width: 100%;
-    justify-content: center;
+    justify-content: space-evenly;
+    align-items: center;
     background-color: white;
     color: black;
 `
+
 
 export default function ModeButtons({ socketUrl }) {
 
@@ -26,7 +50,7 @@ export default function ModeButtons({ socketUrl }) {
 
     const [fails, setfails] = useState(0);
     const [historylen, sethistorylen] = useState(0);
-    
+
     const [alertemail, setalertemail] = useState("");
 
     const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, { retryOnError: true });
@@ -68,19 +92,19 @@ export default function ModeButtons({ socketUrl }) {
                 </ControlPanelButtons>
                 <ControlPanelButtons>
                     <label htmlFor="email">
-                        <p>Email for alerts:</p>
-                        <input id="email" type="email" value={alertemail} onChange={(e) => {setalertemail(e.target.value) }}></input>
-                        <button onClick={() => { let email = document.querySelector("#email"); sendMessage("email=" + email.value); }}>Update email</button>
+                        Email for alerts:
                     </label>
+                    <Input id="email" type="email" value={alertemail} onChange={(e) => { setalertemail(e.target.value) }}></Input>
+                    <Ebtn onClick={() => { let email = document.querySelector("#email"); sendMessage("email=" + email.value); }}><p>Update email</p></Ebtn>
                 </ControlPanelButtons>
-                <ControlPanelButtons>
+                <ControlPanelButtons style={{paddingBottom: "1.3em"}}>
                     <label htmlFor="allowedfails">
                         <p>Allowed fails</p>
-                        <input id="allowedfails" type="number" value={allowedfailsnum} onChange={(e) => { sendMessage("allowedfails=" + e.target.value); setallowedfailsnum(e.target.value) }}></input>
+                        <Input id="allowedfails" type="number" value={allowedfailsnum} onChange={(e) => { sendMessage("allowedfails=" + e.target.value); setallowedfailsnum(e.target.value) }}></Input>
                     </label>
                     <label htmlFor="historylength">
                         <p>History length</p>
-                        <input id="historylength" type="number" value={historylengthnum} onChange={(e) => { sendMessage("historylength=" + e.target.value); sethistorylengthnum(e.target.value) }}></input>
+                        <Input id="historylength" type="number" value={historylengthnum} onChange={(e) => { sendMessage("historylength=" + e.target.value); sethistorylengthnum(e.target.value) }}></Input>
                     </label>
                 </ControlPanelButtons>
             </StatusCard>

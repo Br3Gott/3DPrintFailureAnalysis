@@ -25,7 +25,6 @@ ChartJS.register(
 );
 
 const options = {
-  responsive: true,
   plugins: {
     legend: {
       position: "top",
