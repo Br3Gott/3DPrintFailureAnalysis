@@ -81,7 +81,7 @@ def filter_hard(image):
 def filter_image(input_image):
     # convert image to hsv format
     hsv = cv.cvtColor(input_image, cv.COLOR_BGR2HSV)
-    cv.imwrite("./hsv.jpg", hsv)
+    # cv.imwrite("./hsv.jpg", hsv)
 
     # base hsv values for initail filtering
     # lower = np.array([0,100,50])
@@ -155,5 +155,5 @@ def filter_image(input_image):
     else:
         bin_img_data = filter_soft(hsv_cropped)
 
-    cv.imwrite("./final.jpg", bin_img_data)
+    # cv.imwrite("./final.jpg", bin_img_data)
     return bin_img_data, done_masked

@@ -55,11 +55,11 @@ async def send_notification(receiver_email, message_text):
     await send_email("Octoprint Observer Notification", message_text, constants.sender_email, [receiver_email], constants.password)
 
 routes = web.RouteTableDef()
-# routes.static('/assets', './assets')
+routes.static('/assets', './frontend/dist/assets')
 
 @routes.get('/')
 async def static_content(request):
-    return web.FileResponse('./index.html')
+    return web.FileResponse('./frontend/dist/index.html')
 
 
 @routes.get('/video')
@@ -81,9 +81,11 @@ async def mjpeg_handler(request):
             mpwriter.append(data, {
                 'Content-Type': 'image/jpeg'
             })
-            await mpwriter.write(response, close_boundary=False)
-        # await response.drain()
-    wc.shutdown()
+            try:
+                await mpwriter.write(response, close_boundary=False)
+            except:
+                return response
+        await asyncio.sleep(0.2)
     return response
 
 connections = []
@@ -212,9 +214,8 @@ async def getDetectStatus(image, pixel):
                 app["state"]["active"] = False
                 await sendMessage("on", app["state"]["active"])
                 # send notification
-                await send_notification(app["ctlpnl"]["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.199/')
+                await send_notification(app["ctlpnl"]["notification_email"], 'Detected possible 3d printing failure. The current print has been paused. Please take action: http://10.8.160.203/')
                 # await sendApp()
-                # send pause command
                 await pausePrint()
     else:
         app["history_failed"].append(False)
@@ -227,12 +228,10 @@ async def getDetectStatus(image, pixel):
 
 async def captureImage():
     image = camera.capture_array("main")
-    # width = 640
-    # height = 480
-    # image = cv.resize(image, (width, height), interpolation = cv.INTER_AREA)
     binary_image, masked_image = filter_image(image)
     raw_bytes = cv.imencode('.jpg', binary_image)[1].tobytes()
 
+    # Record data to disk
     # curr_date = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
     # cv.imwrite("./capture_data/{}.jpg".format(curr_date), image)
 
@@ -247,7 +246,7 @@ async def pausePrint():
             "command": "pause",
             "action": "pause"
         }
-        async with session.post('http://10.8.160.199/api/job', json=payload) as resp:
+        async with session.post('http://10.8.160.203/api/job', json=payload) as resp:
             print(resp.status)
             print(await resp.text())
 
