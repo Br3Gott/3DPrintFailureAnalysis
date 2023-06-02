@@ -20,36 +20,31 @@ Another central issue of current 3D printing technology is that creating detaile
 ### Keep reading the full thesis here: INSERT LINK
 ***
 
-# Technical Documentation
-
-### Hardware
-* Computer: Raspberry Pi 3 B+ (1GB RAM)
-* Camera: Raspberry Pi Camera Module CSI-2
-* Lighting: Desk lamp and a plastic sheet to diffuse the light.
-* 3D Printer: Creality Ender 3
-
-### Software
-* Image Processing: OpenCV 4.2.0
-* Machine Learning: TensorFlow 2.11.0
-
-### User Guide
-Pre-Requisites
-* Get a 3D printer similar to the Creality Ender 3 a Raspberry Pi 3B or newer and a Raspberry Pi Camera module.
-* Print the hardware mount parts in `/hardware`.
-
-Hardware setup
-* Plug in Raspberry Pi Camera module into the camera port on the Raspberry Pi.
-* Mount Camera and Raspberry Pi in the provided hardware mount.
-* Plug the Raspberry Pi into USB port of printer controller.
-* Power the Raspberry Pi with a verified Raspberry Pi power source such as the included power adapter.
-
-Software setup
-* Clone repository.
-* Install dependencies using `./setup.sh` while in the root directory of the repository.
-* Run the program using `./run.py`.
-* Visit [localhost:9000](https://localhost:9000/).
-* Follow the rest of the guide in your browser.
-
+# Files
+[Datasets](https://files.havre.dev/FailureAnalysis/datasets/)
+[Testcases](https://files.havre.dev/FailureAnalysis/testcases/)
+[ISO Image]()
 ***
+
+# Usage
+Download the [ISO Image]() and flash it on the Raspberry Pi.
+
+Start the Raspberry Pi.
+
+Connect to the Raspberry Pi using `ssh pi@<Raspberry Pi IP>` and input password `raspberry`.
+
+Change the default password.
+
+Create and input the required constants in the `constants.py` in the root directory of the project.
+
+Restart the Raspberry Pi.
+
+Open the OctoPrint control panel at: `<Raspberry Pi IP>`
+
+Change the Webcam URL link to: `http://<Raspberry Pi IP>:8080/video`
+
+Press `Activate` in the `Failure Analysis` tab to start monitoring.
+
+Enjoy safe printing!
 
 ### Contributions to this specific repository are not going to be accepted. But feel free to fork the project for personal use.
