@@ -7,7 +7,7 @@ import tflite_runtime.interpreter as tflite
 
 class Identify:
     def run(input_image, verbose=False):
-        TF_MODEL_FILE_PATH = "/home/pi/exjobb/tf/model.tflite"  # The default path to the saved TensorFlow Lite model
+        TF_MODEL_FILE_PATH = "/home/pi/FailureAnalysis/tf/model.tflite"  # The default path to the saved TensorFlow Lite model
 
         interpreter = tflite.Interpreter(model_path=TF_MODEL_FILE_PATH)
 
