@@ -36,12 +36,11 @@ while True:
     tf_image = cv.cvtColor(binary_image, cv.COLOR_GRAY2RGB)
 
     display_text = "====== TensorFlow Status " + time.asctime() + " =====" + "\n"
-    # classify with tflite model
-    #tf_image = np.expand_dims(binary_image, axis=0)
+
+
     classification = Identify.run(tf_image, verbose=False)
     if (np.argmax(classification) == 0):
         display_text += "Print is failing!" + "\n"
-        #user_prompt()
     else:
         display_text += "Print is successful!" + "\n"
 

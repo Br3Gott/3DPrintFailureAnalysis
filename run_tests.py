@@ -57,7 +57,6 @@ for testcase in testcases:
     print("Description: {}".format(data["description"]))
 
     image_names = os.listdir("./testsuite/data/{}/images".format(testcase))
-    # print("Available Images: {}".format(image_names))
 
     # Loop through images, do the entire process
     # keep track of fails / success

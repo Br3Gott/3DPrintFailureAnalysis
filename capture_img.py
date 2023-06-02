@@ -32,7 +32,6 @@ time.sleep(2)
 image_count = 0
 
 # command line argument fail / success
-# path = "./dataset#" + datetime.datetime.now().strftime("%Y-%m-%d")
 path = "./datasets/" + sys.argv[2]
 
 if sys.argv[1] == "fail":
