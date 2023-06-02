@@ -6,4 +6,5 @@ dataset*/
 tflog*.txt
 constants.py
 *.jpg
+testsuite/data/
 .vscode/
