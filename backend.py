@@ -250,18 +250,6 @@ async def pausePrint():
             print(resp.status)
             print(await resp.text())
 
-# async def sendApp():
-#     headers = {"Content-type": "application/x-www-form-urlencoded"}
-#     async with ClientSession(headers=headers) as session:
-#         payload = {
-#             "token": constants.pushoverkey,
-#             "user": constants.pushoverdavid,
-#             "message": "printer print",
-#         }
-#         async with session.post('https://api.pushover.net/1/messages.json', data=payload) as resp:
-#             print(resp.status)
-#             print(await resp.text())
-
 app = web.Application()
 app["state"] = {"active": False}
 app["history_failed"] = []
