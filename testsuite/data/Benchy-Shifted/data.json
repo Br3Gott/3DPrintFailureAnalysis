@@ -1,6 +1,0 @@
-{
-    "name": "#3DBenchy Shifted",
-    "description": "A #3DBenchy which experiences a layer shift in the middle of the print.",
-    "fail_boundary": 83,
-    "passing_boundary": 95
-}
