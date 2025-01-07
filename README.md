@@ -17,7 +17,7 @@ with a limited training dataset?
 
 Another central issue of current 3D printing technology is that creating detailed and larger models can take a very long time, this is another motivating factor for creating an autonomous system that can monitor the system in its entirety, since it is neither cost effective nor healthy for personnel to watch over the printer during the long print jobs.
 
-### Keep reading the full thesis here: INSERT LINK
+### Keep reading the full thesis here: [Google Drive Document](https://drive.google.com/file/d/1CYKXol5aLj0p3fodsFr81RXP4OuGD8Eu/view?usp=sharing)
 ***
 
 # Files
